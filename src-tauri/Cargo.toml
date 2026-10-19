@@ -4,6 +4,7 @@ version = "1.0.0"
 description = "PixelBuddy desktop pets"
 edition = "2021"
 publish = false
+license-file = "../LICENSE"
 
 [lib]
 name = "pixelbuddy_lib"

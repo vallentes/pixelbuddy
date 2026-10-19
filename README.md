@@ -74,3 +74,7 @@ Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.
 * Windows: `%APPDATA%\app.pixelbuddy.desktop\` (database `pixelbuddy.db`, voice model in `voice-models\`), logs in `%LOCALAPPDATA%\app.pixelbuddy.desktop\logs`
 * macOS: `~/Library/Application Support/app.pixelbuddy.desktop/`
 * Keychain (service `app.pixelbuddy.desktop`): `twitch_tokens` only when Twitch is connected
+
+## License
+
+Copyright (c) 2026 Valentin Vina (Vallentes). All rights reserved. The official builds are free to download and use; see [LICENSE](LICENSE).
