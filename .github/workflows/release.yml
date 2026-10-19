@@ -49,7 +49,15 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: npx tauri build ${{ matrix.args }}
+        shell: bash
+        run: |
+          # Empty secrets would make the bundler try (and fail) to import a certificate.
+          for v in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "${!v}" ]; then unset "$v"; fi
+          done
+          # Without an Apple certificate, use an ad-hoc signature so the app still runs on Apple Silicon.
+          if [ "$RUNNER_OS" = "macOS" ] && [ -z "${APPLE_CERTIFICATE:-}" ]; then export APPLE_SIGNING_IDENTITY="-"; fi
+          npx tauri build ${{ matrix.args }}
       - uses: actions/upload-artifact@v4
         with:
           name: pixelbuddy-${{ matrix.os }}
