@@ -1,0 +1,44 @@
+[package]
+name = "pixelbuddy"
+version = "1.0.0"
+description = "PixelBuddy desktop pets"
+edition = "2021"
+publish = false
+
+[lib]
+name = "pixelbuddy_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"] }
+tauri-plugin-notification = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-log = "2"
+axum = { workspace = true }
+futures-util = "0.3"
+keyring = { version = "3", features = ["apple-native", "windows-native"] }
+log = { workspace = true }
+reqwest = { workspace = true, features = ["stream"] }
+rusqlite = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { version = "0.1", features = ["sync"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_SystemInformation",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_Shell",
+] }
+
+[features]
+default = []

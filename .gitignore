@@ -1,0 +1,13 @@
+node_modules/
+dist/
+target/
+target-release/
+src-tauri/gen/
+*.db
+*.db-wal
+*.db-shm
+.DS_Store
+public/ort/
+dist-gallery/
+.claude/
+gallery.html.bak

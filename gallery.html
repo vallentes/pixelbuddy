@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PixelBuddy gallery (dev only)</title>
+    <style>
+      body { margin: 0; background: linear-gradient(160deg, #0d1b3d, #1e48c8 60%, #0b1430); font: 13px system-ui; color: #fff; }
+      .grid { display: grid; grid-template-columns: repeat(5, 260px); gap: 8px; padding: 12px; }
+      .cell { text-align: center; }
+      canvas { width: 260px; height: 260px; }
+      .bar { padding: 8px 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+      button { font: 600 12px system-ui; }
+    </style>
+  </head>
+  <body>
+    <div class="bar" id="bar"></div>
+    <div class="grid" id="grid"></div>
+    <script type="module" src="/src/dev/gallery.ts"></script>
+  </body>
+</html>
