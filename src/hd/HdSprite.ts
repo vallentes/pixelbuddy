@@ -16,6 +16,9 @@ const EVENTS: Partial<Record<PetState, [number, PKind, number, number, number][]
   peekaboo: [[1.42, 'heart', 4, 0, -110]],
   shades: [[0.72, 'sparkle', 4, 0, -90]],
   trip: [[0.32, 'star', 5, 34, -40], [0.32, 'puff', 4, 30, -4]],
+  bubblegum: [[2.42, 'confetti', 10, 0, -70], [2.42, 'puff', 5, 0, -70]],
+  cartwheel: [[0.05, 'puff', 4, 0, -4], [1.4, 'puff', 5, 0, -4], [1.45, 'star', 4, 0, -110]],
+  selfie: [[1.45, 'sparkle', 8, 30, -110]],
 };
 import { Particles } from './particles';
 import { BASE, easePose, targetPose, type Pose } from './pose';

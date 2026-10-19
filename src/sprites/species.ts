@@ -1,4 +1,5 @@
 import type { Species } from './types';
+import { NEW_SPECIES } from './species2';
 
 // All five pets are original designs built from simple shapes on a 32x32 grid. The ground line
 // is y = 31; the rasterizer adds outlines, shading and faces.
@@ -188,8 +189,8 @@ const nimbus: Species = {
   floaty: true,
 };
 
-export const SPECIES: Record<string, Species> = { mochi, pip, ember, bolt, nimbus };
-export const SPECIES_LIST: Species[] = [mochi, pip, ember, bolt, nimbus];
+export const SPECIES_LIST: Species[] = [mochi, pip, ember, bolt, nimbus, ...NEW_SPECIES];
+export const SPECIES: Record<string, Species> = Object.fromEntries(SPECIES_LIST.map((s) => [s.id, s]));
 
 export function getSpecies(id: string): Species {
   return SPECIES[id] ?? mochi;

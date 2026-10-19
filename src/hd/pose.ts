@@ -351,6 +351,38 @@ export function poseFor(state: PetState, t: number, seed: number): Partial<Pose>
       const k = S(Math.min(1, t / 1.6) * Math.PI);
       return { armL: 0.25 + 2.85 * k, armR: 0.25 + 2.85 * k, sy: 1 + 0.12 * k, sx: 1 - 0.05 * k, eyes: 'closed', mouth: k > 0.5 ? 'talk' : 'small', mouthOpen: k * 0.8, lean: 0.04 * S(t * 3) };
     }
+    case 'airguitar':
+      return {
+        lean: -0.14,
+        headTilt: 0.22 * S(t * 12),
+        armL: 1.35,
+        armR: 0.85 + 0.45 * S(t * 22),
+        legR: Math.max(0, S(t * 8)) * 4,
+        eyes: 'closed',
+        mouth: 'open',
+        mouthOpen: 0.8,
+        tail: 0.6 * S(t * 12),
+        blush: 0.6,
+      };
+    case 'bubblegum': {
+      if (t < 1.0) return { mouth: 'talk', mouthOpen: pulse(t, 3) * 0.6, eyes: 'open', headTilt: 0.05 * S(t * 6) };
+      if (t < 2.4) return { mouth: 'o', eyes: t > 2.0 ? 'wide' : 'open', sy: 1.02, headTilt: -0.05 };
+      return { mouth: 'open', mouthOpen: 0.6, eyes: t < 2.8 ? 'dizzy' : 'happy', sy: t < 2.55 ? 0.9 : 1, blush: 1.1 };
+    }
+    case 'cartwheel': {
+      const q = Math.min(1, t / 1.4);
+      return { spin: TAU * q, y: -Math.sin(q * Math.PI) * 14, armL: 2.9, armR: 2.9, legL: 6, legR: 6, eyes: 'happy', mouth: 'open', mouthOpen: 0.6 };
+    }
+    case 'tiptoe': {
+      const w = S(t * TAU * 1.2);
+      return { sy: 0.9, sx: 1.04, lean: 0.14, legL: Math.max(0, w) * 3, legR: Math.max(0, -w) * 3, armL: 1.9, armR: 1.9, eyes: 'open', mouth: 'small', face: 1, headTilt: 0.05 * S(t * 2) };
+    }
+    case 'yoyo':
+      return { armR: 0.55 + 0.35 * S(t * 7), armL: 0.3, eyes: 'open', mouth: 'smile', headTilt: 0.08, blush: 0.5 };
+    case 'selfie': {
+      const pose2 = t > 1.3;
+      return { armR: 2.5, armL: pose2 ? 2.2 : 0.4, headTilt: 0.2, eyes: pose2 ? 'happy' : 'open', mouth: pose2 ? 'grin' : 'smile', mouthOpen: 0.6, blush: 0.8, lean: -0.05 };
+    }
     case 'sing':
       return {
         lean: 0.12 * S(t * TAU * 0.6),

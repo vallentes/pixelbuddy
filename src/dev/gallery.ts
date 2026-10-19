@@ -56,6 +56,11 @@ const sprites = species.map((sp) => {
   grid.appendChild(cell);
   const s = new HdSprite(sp, 'classic', accessory);
   s.setGaze(0.6, 0.2);
+  const jump = Number(params.get('t'));
+  if (jump) {
+    s.setState(state);
+    for (let i = 0; i < jump * 60; i++) s.advance(1000 / 60, 1);
+  }
   return { c, s, sp };
 });
 talk.onclick = () => sprites.forEach((x) => x.s.say(pickLine('random', x.sp, x.sp, 'Valentin'), 6000));

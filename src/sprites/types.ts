@@ -28,7 +28,7 @@ export type Shape =
   | (ShapeBase & { k: 'tri'; pts: [[number, number], [number, number], [number, number]] })
   | (ShapeBase & { k: 'px'; pts: [number, number][] });
 
-export type FoodKind = 'fish' | 'berry' | 'pepper' | 'battery' | 'clover';
+export type FoodKind = 'fish' | 'berry' | 'pepper' | 'battery' | 'clover' | 'carrot' | 'bone' | 'cookie' | 'seed' | 'star' | 'marshmallow' | 'lettuce' | 'bamboo';
 
 export interface Species {
   id: string;
@@ -83,7 +83,13 @@ export type PetState =
   | 'hiccup'
   | 'meditate'
   | 'toot'
-  | 'stretch';
+  | 'stretch'
+  | 'airguitar'
+  | 'bubblegum'
+  | 'cartwheel'
+  | 'tiptoe'
+  | 'yoyo'
+  | 'selfie';
 
 export type EyeStyle = 'open' | 'closed' | 'happy' | 'angry' | 'dizzy' | 'none';
 export type MouthStyle = 'none' | 'small' | 'smile' | 'open' | 'o' | 'frown';

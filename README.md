@@ -1,6 +1,6 @@
 # PixelBuddy
 
-Free desktop pets for Windows and macOS. Five original characters walk along your taskbar, talk, tell jokes, do tricks, react when you poke them, and play with each other. Streamers get an OBS overlay and optional Twitch reactions.
+Free desktop pets for Windows and macOS. Fifteen original characters (a cat, frog, dragon, robot, cloud-sheep, penguin, bunny, puppy, owl, hamster, alien, ghost, turtle, octopus and panda) walk along your taskbar, talk, tell jokes, do 19 tricks, react when you poke them, and play with each other. Streamers get an OBS overlay and optional Twitch reactions.
 
 **[⬇ Download the latest release](https://github.com/vallentes/pixelbuddy/releases/latest)** · [How to install](#install)
 

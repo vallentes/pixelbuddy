@@ -215,6 +215,12 @@ const STATE_TOPIC: Partial<Record<PetState, [Topic, number]>> = {
   meditate: ['meditate', 0.8],
   toot: ['toot', 1],
   stretch: ['stretch', 0.6],
+  airguitar: ['airguitar', 0.9],
+  bubblegum: ['bubblegum', 0.5],
+  cartwheel: ['cartwheel', 0.8],
+  tiptoe: ['tiptoe', 0.8],
+  yoyo: ['yoyo', 0.7],
+  selfie: ['selfie', 0.9],
 };
 
 const STATE_SFX: Partial<Record<PetState, Sfx>> = {
@@ -238,6 +244,9 @@ const STATE_SFX: Partial<Record<PetState, Sfx>> = {
   hiccup: 'hic',
   toot: 'toot',
   stretch: 'pop',
+  airguitar: 'guitar',
+  cartwheel: 'whoosh',
+  yoyo: 'pop',
 };
 
 function onStateChange(s: PetState) {
@@ -249,6 +258,8 @@ function onStateChange(s: PetState) {
   if (s === 'magic') window.setTimeout(() => brain.state === 'magic' && chat('magicDone'), 2150);
   if (s === 'hiccup') [900, 1800, 2700].forEach((d) => window.setTimeout(() => brain.state === 'hiccup' && voice.sfx('hic'), d));
   if (s === 'karate') window.setTimeout(() => voice.sfx('pop'), 550);
+  if (s === 'bubblegum') window.setTimeout(() => brain.state === 'bubblegum' && (voice.sfx('pop'), chat('bubblePop')), 2420);
+  if (s === 'selfie') window.setTimeout(() => brain.state === 'selfie' && voice.sfx('shutter'), 1450);
 }
 
 /** Plays an action locally and records it so the echo from the core is not played twice. */
@@ -635,6 +646,12 @@ async function showMenu() {
         ['peekaboo', 'Peekaboo'],
         ['meditate', 'Meditate'],
         ['stretch', 'Stretch'],
+        ['airguitar', 'Air guitar'],
+        ['bubblegum', 'Bubblegum'],
+        ['cartwheel', 'Cartwheel'],
+        ['tiptoe', 'Sneak'],
+        ['yoyo', 'Yo-yo'],
+        ['selfie', 'Selfie'],
       ] as [Action, string][]
     ).map(([a, text]) => ({ id: a, text, action: act(a) })),
   });

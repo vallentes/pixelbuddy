@@ -12,6 +12,8 @@ interface PetVoice {
   voice: string;
   /** Playback rate: raises pitch and speed together for a cartoon voice. */
   rate: number;
+  /** Speaking speed passed to the model (1 = normal). */
+  speed?: number;
   robot?: boolean;
 }
 
@@ -21,6 +23,16 @@ export const PET_VOICES: Record<string, PetVoice> = {
   ember: { voice: 'am_michael', rate: 0.94 },
   bolt: { voice: 'am_adam', rate: 1.05, robot: true },
   nimbus: { voice: 'af_heart', rate: 1.1 },
+  pickles: { voice: 'bm_george', rate: 1.04 },
+  clover: { voice: 'af_bella', rate: 1.32, speed: 1.1 },
+  waffles: { voice: 'am_puck', rate: 1.2, speed: 1.1 },
+  hoot: { voice: 'bm_fable', rate: 0.96 },
+  biscuit: { voice: 'af_jessica', rate: 1.36 },
+  zib: { voice: 'am_eric', rate: 1.38, robot: true },
+  boo: { voice: 'af_river', rate: 1.12, speed: 0.9 },
+  shelly: { voice: 'am_santa', rate: 0.86, speed: 0.75 },
+  inky: { voice: 'af_nova', rate: 1.22 },
+  bao: { voice: 'am_onyx', rate: 0.94, speed: 0.85 },
 };
 
 export type VoiceStatus =
@@ -51,7 +63,7 @@ async function synth(text: string, species: string) {
   if (hit) return hit;
   const pv = PET_VOICES[species] ?? PET_VOICES.mochi;
   const t0 = performance.now();
-  const out = await tts!.generate(text, { voice: pv.voice, speed: 1 });
+  const out = await tts!.generate(text, { voice: pv.voice, speed: pv.speed ?? 1 });
   console.debug(`voice: ${text.length} chars in ${Math.round(performance.now() - t0)} ms, ${(out.audio.length / out.sampling_rate).toFixed(1)} s audio`);
   const v = { audio: out.audio, sr: out.sampling_rate };
   cache.set(key, v);

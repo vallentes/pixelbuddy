@@ -4,6 +4,7 @@
 
 import { TRICKS, type Action } from './brain';
 import { JOKES, MORE_CONVERSATIONS, SPECIES_JOKES } from './lines';
+import { PAIR_CONVERSATIONS } from './lines2';
 
 export type Role = 'a' | 'b';
 
@@ -58,7 +59,7 @@ const CONVERSATIONS: { species?: [string, string]; lines: [string, string, strin
 ];
 
 export function pickConversation(aSpecies: string, bSpecies: string, rand: () => number): [string, string, string?] {
-  const special = CONVERSATIONS.filter((c) => c.species && c.species[0] === aSpecies && c.species[1] === bSpecies);
+  const special = [...CONVERSATIONS, ...PAIR_CONVERSATIONS].filter((c) => c.species && c.species[0] === aSpecies && c.species[1] === bSpecies);
   if (special.length && rand() < 0.6) return special[Math.floor(rand() * special.length)].lines;
   const general = [...CONVERSATIONS.filter((c) => !c.species), ...MORE_CONVERSATIONS.map((lines) => ({ lines }))];
   return general[Math.floor(rand() * general.length)].lines;

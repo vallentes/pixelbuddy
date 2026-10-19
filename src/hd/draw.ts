@@ -4,6 +4,7 @@
 import { hexToRgb, rgbToHex } from '../sprites/palette';
 import type { Accessory, ColorVariant, FoodKind } from '../sprites/types';
 import type { Pose } from './pose';
+import { critterBody, critterHead, type CritterSpec } from './critters';
 
 const TAU = Math.PI * 2;
 type Ctx = CanvasRenderingContext2D;
@@ -24,7 +25,7 @@ export interface HdPalette {
   nose: string;
 }
 
-export type HdKind = 'cat' | 'frog' | 'dragon' | 'robot' | 'sheep';
+export type HdKind = 'cat' | 'frog' | 'dragon' | 'robot' | 'sheep' | 'critter';
 
 export interface HdSpecies {
   kind: HdKind;
@@ -33,6 +34,8 @@ export interface HdSpecies {
   hatY: number;
   food: FoodKind;
   floaty?: boolean;
+  /** Body plan for kind 'critter'. */
+  critter?: CritterSpec;
 }
 
 export const HD_SPECIES: Record<string, HdSpecies> = {
@@ -137,6 +140,217 @@ export const HD_SPECIES: Record<string, HdSpecies> = {
       nose: '#c27a9a',
     },
   },
+  pickles: {
+    kind: 'critter',
+    hatY: -30,
+    food: 'fish',
+    critter: {body: {rx: 22, ry: 28, cy: -36}, head: {rx: 28, ry: 26}, ears: 'none', face: 'penguin', eyes: {x: 10, y: -3, rx: 6.5, ry: 8}, belly: true, arms: 'flippers', legs: 'feet', mouthY: 11},
+    palette: {
+      main: '#3a4a6b',
+      light: '#6b7fa8',
+      dark: '#1f2840',
+      belly: '#fdfdff',
+      bellyDark: '#dfe4ef',
+      accent: '#2e3b57',
+      accentDark: '#1a2236',
+      outline: '#141a2b',
+      iris: '#2b2b3a',
+      irisDark: '#08080e',
+      inner: '#ffb3c2',
+      cheek: '#ff9fb5',
+      nose: '#ffb03b'
+    },
+  },
+  clover: {
+    kind: 'critter',
+    hatY: -27,
+    food: 'carrot',
+    critter: {body: {rx: 21, ry: 24, cy: -34}, head: {rx: 28, ry: 25}, ears: 'long', face: 'muzzle', eyes: {x: 11, y: -4, rx: 7, ry: 8.5}, belly: true, arms: 'paws', legs: 'feet', tail: 'puff', nose: 'pink', catMouth: true},
+    palette: {
+      main: '#f4e9e1',
+      light: '#ffffff',
+      dark: '#d6c3b6',
+      belly: '#ffffff',
+      bellyDark: '#ece3dc',
+      accent: '#ead9cd',
+      accentDark: '#c6ad9d',
+      outline: '#5a4440',
+      iris: '#c2577a',
+      irisDark: '#5e1c35',
+      inner: '#ffb6c9',
+      cheek: '#ff9fbf',
+      nose: '#ff8fb1'
+    },
+  },
+  waffles: {
+    kind: 'critter',
+    hatY: -27,
+    food: 'bone',
+    critter: {body: {rx: 22, ry: 25, cy: -35}, head: {rx: 30, ry: 26}, ears: 'floppy', face: 'muzzle', eyes: {x: 12, y: -5, rx: 7.5, ry: 9}, belly: true, arms: 'paws', legs: 'feet', tail: 'curl', nose: 'dot'},
+    palette: {
+      main: '#e0a96b',
+      light: '#f7d4a2',
+      dark: '#b07a42',
+      belly: '#fff3e2',
+      bellyDark: '#ecd4b5',
+      accent: '#8a5a33',
+      accentDark: '#5e3a1e',
+      outline: '#4a2c16',
+      iris: '#6b3e1f',
+      irisDark: '#2a160a',
+      inner: '#ffb3a7',
+      cheek: '#ff9b8f',
+      nose: '#2a1d22'
+    },
+  },
+  hoot: {
+    kind: 'critter',
+    hatY: -30,
+    food: 'cookie',
+    critter: {body: {rx: 24, ry: 28, cy: -36}, head: {rx: 30, ry: 25}, ears: 'tufts', face: 'beak', eyes: {x: 12, y: -4, rx: 8, ry: 8.5}, belly: true, arms: 'wings', legs: 'feet', mouthY: 12},
+    palette: {
+      main: '#8c6a4f',
+      light: '#c49a74',
+      dark: '#5f4532',
+      belly: '#f2dcc0',
+      bellyDark: '#d8bc98',
+      accent: '#6e523c',
+      accentDark: '#463324',
+      outline: '#33241a',
+      iris: '#ffb627',
+      irisDark: '#8a5300',
+      inner: '#ffb3a7',
+      cheek: '#ff9b8f',
+      nose: '#ffb03b'
+    },
+  },
+  biscuit: {
+    kind: 'critter',
+    hatY: -26,
+    food: 'seed',
+    critter: {body: {rx: 25, ry: 23, cy: -32}, head: {rx: 30, ry: 25}, ears: 'round', face: 'muzzle', eyes: {x: 12, y: -5, rx: 6, ry: 7}, belly: true, arms: 'paws', legs: 'stubby', pouches: true, nose: 'pink', catMouth: true, mouthY: 11},
+    palette: {
+      main: '#f0b675',
+      light: '#ffdcae',
+      dark: '#c98a46',
+      belly: '#fff6ea',
+      bellyDark: '#efdcc4',
+      accent: '#e39c5c',
+      accentDark: '#b06b2e',
+      outline: '#5c3517',
+      iris: '#2b1d17',
+      irisDark: '#0c0705',
+      inner: '#ffb3c2',
+      cheek: '#ff9fb5',
+      nose: '#ff8fa8'
+    },
+  },
+  zib: {
+    kind: 'critter',
+    hatY: -28,
+    food: 'star',
+    critter: {body: {rx: 18, ry: 22, cy: -32}, head: {rx: 32, ry: 27}, ears: 'antennae', face: 'plain', eyes: {x: 13, y: -3, rx: 10, ry: 12}, belly: true, arms: 'paws', legs: 'feet', spots: true, nose: 'none', mouthY: 13},
+    palette: {
+      main: '#7ee08a',
+      light: '#c4ffc8',
+      dark: '#3fa851',
+      belly: '#e4ffe6',
+      bellyDark: '#b9e8bd',
+      accent: '#c48bff',
+      accentDark: '#7f4ac9',
+      outline: '#1f4a2a',
+      iris: '#141414',
+      irisDark: '#000000',
+      inner: '#ffb3c2',
+      cheek: '#ff9fbf',
+      nose: '#3fa851'
+    },
+  },
+  boo: {
+    kind: 'critter',
+    hatY: -30,
+    food: 'marshmallow',
+    floaty: true,
+    critter: {body: {rx: 30, ry: 30, cy: -55}, head: {rx: 28, ry: 24}, ears: 'none', face: 'plain', eyes: {x: 11, y: -2, rx: 7, ry: 9}, arms: 'nubs', legs: 'ghost', nose: 'none', mouthY: 11},
+    palette: {
+      main: '#eef0ff',
+      light: '#ffffff',
+      dark: '#c7cbe8',
+      belly: '#ffffff',
+      bellyDark: '#e5e8f7',
+      accent: '#cfd4f2',
+      accentDark: '#9da4cf',
+      outline: '#4b4f73',
+      iris: '#1d1f33',
+      irisDark: '#000000',
+      inner: '#ffc2d8',
+      cheek: '#ffa3c4',
+      nose: '#c27a9a'
+    },
+  },
+  shelly: {
+    kind: 'critter',
+    hatY: -27,
+    food: 'lettuce',
+    critter: {body: {rx: 21, ry: 24, cy: -34}, head: {rx: 26, ry: 23}, ears: 'none', face: 'plain', eyes: {x: 10, y: -3, rx: 6.5, ry: 8}, belly: true, arms: 'paws', legs: 'stubby', shell: true, tail: 'stub', nose: 'none', mouthY: 10},
+    palette: {
+      main: '#8fd18a',
+      light: '#c9f2c2',
+      dark: '#5ea65c',
+      belly: '#f6efc7',
+      bellyDark: '#e2d79b',
+      accent: '#b07a3f',
+      accentDark: '#6e4a22',
+      outline: '#2f4a26',
+      iris: '#2b1d17',
+      irisDark: '#0c0705',
+      inner: '#ffb3c2',
+      cheek: '#ff9fb5',
+      nose: '#2f4a26'
+    },
+  },
+  inky: {
+    kind: 'critter',
+    hatY: -30,
+    food: 'fish',
+    critter: {body: {rx: 20, ry: 16, cy: -30}, head: {rx: 33, ry: 30}, ears: 'none', face: 'plain', eyes: {x: 12, y: 0, rx: 8, ry: 9.5}, arms: 'tentacles', legs: 'tentacles', spots: true, nose: 'none', mouthY: 14},
+    palette: {
+      main: '#b38cff',
+      light: '#dcc8ff',
+      dark: '#7e58cf',
+      belly: '#f1e7ff',
+      bellyDark: '#d7c6f5',
+      accent: '#ff8fc7',
+      accentDark: '#c95a92',
+      outline: '#3c2569',
+      iris: '#1a1230',
+      irisDark: '#000000',
+      inner: '#ffb3e0',
+      cheek: '#ff9fd0',
+      nose: '#7e58cf'
+    },
+  },
+  bao: {
+    kind: 'critter',
+    hatY: -28,
+    food: 'bamboo',
+    critter: {body: {rx: 25, ry: 26, cy: -35}, head: {rx: 30, ry: 26}, ears: 'round', face: 'panda', eyes: {x: 12, y: -4, rx: 5.5, ry: 6.5}, belly: true, arms: 'paws', legs: 'stubby', tail: 'stub', nose: 'dot', mouthY: 11},
+    palette: {
+      main: '#f6f6f2',
+      light: '#ffffff',
+      dark: '#d4d4cc',
+      belly: '#ffffff',
+      bellyDark: '#e7e7df',
+      accent: '#2a2a30',
+      accentDark: '#111114',
+      outline: '#1d1d22',
+      iris: '#4a3a2e',
+      irisDark: '#0d0907',
+      inner: '#5a5a62',
+      cheek: '#ffa3b5',
+      nose: '#1d1d22'
+    },
+  },
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -195,12 +409,12 @@ export function hdPalette(base: HdPalette, v: ColorVariant): HdPalette {
 // Drawing helpers
 // ---------------------------------------------------------------------------------------------
 
-function ell(c: Ctx, x: number, y: number, rx: number, ry: number, rot = 0) {
+export function ell(c: Ctx, x: number, y: number, rx: number, ry: number, rot = 0) {
   c.beginPath();
   c.ellipse(x, y, Math.max(0.01, rx), Math.max(0.01, ry), rot, 0, TAU);
 }
 
-function paint(c: Ctx, fill: string | CanvasGradient, outline: string, lw = 2) {
+export function paint(c: Ctx, fill: string | CanvasGradient, outline: string, lw = 2) {
   c.fillStyle = fill;
   c.fill();
   c.lineWidth = lw;
@@ -209,7 +423,7 @@ function paint(c: Ctx, fill: string | CanvasGradient, outline: string, lw = 2) {
   c.stroke();
 }
 
-function shade(c: Ctx, x: number, y: number, r: number, pal: HdPalette) {
+export function shade(c: Ctx, x: number, y: number, r: number, pal: HdPalette) {
   const g = c.createRadialGradient(x - r * 0.35, y - r * 0.45, r * 0.08, x, y, r * 1.08);
   g.addColorStop(0, pal.light);
   g.addColorStop(0.45, pal.main);
@@ -217,12 +431,12 @@ function shade(c: Ctx, x: number, y: number, r: number, pal: HdPalette) {
   return g;
 }
 
-function rrect(c: Ctx, x: number, y: number, w: number, h: number, r: number) {
+export function rrect(c: Ctx, x: number, y: number, w: number, h: number, r: number) {
   c.beginPath();
   c.roundRect(x, y, w, h, r);
 }
 
-function limb(c: Ctx, x1: number, y1: number, x2: number, y2: number, w: number, fill: string | CanvasGradient, outline: string) {
+export function limb(c: Ctx, x1: number, y1: number, x2: number, y2: number, w: number, fill: string | CanvasGradient, outline: string) {
   c.lineCap = 'round';
   c.beginPath();
   c.moveTo(x1, y1);
@@ -235,7 +449,7 @@ function limb(c: Ctx, x1: number, y1: number, x2: number, y2: number, w: number,
   c.stroke();
 }
 
-function armEnd(side: number, a: number, sx: number, sy: number, len: number): [number, number] {
+export function armEnd(side: number, a: number, sx: number, sy: number, len: number): [number, number] {
   return [sx + side * Math.sin(a) * len, sy + Math.cos(a) * len];
 }
 
@@ -243,14 +457,14 @@ function armEnd(side: number, a: number, sx: number, sy: number, len: number): [
 // Faces
 // ---------------------------------------------------------------------------------------------
 
-interface EyeSpec {
+export interface EyeSpec {
   x: number;
   y: number;
   rx: number;
   ry: number;
 }
 
-function drawEyes(c: Ctx, p: Pose, pal: HdPalette, gaze: [number, number], e: EyeSpec, lid: string) {
+export function drawEyes(c: Ctx, p: Pose, pal: HdPalette, gaze: [number, number], e: EyeSpec, lid: string) {
   for (const side of [-1, 1]) {
     const ex = side * e.x + p.face * 3;
     const ey = e.y;
@@ -323,7 +537,7 @@ function drawEyes(c: Ctx, p: Pose, pal: HdPalette, gaze: [number, number], e: Ey
   }
 }
 
-function drawMouth(c: Ctx, p: Pose, pal: HdPalette, x: number, y: number, w: number, catStyle = false) {
+export function drawMouth(c: Ctx, p: Pose, pal: HdPalette, x: number, y: number, w: number, catStyle = false) {
   c.strokeStyle = pal.outline;
   c.lineWidth = 2;
   c.lineCap = 'round';
@@ -374,7 +588,7 @@ function drawMouth(c: Ctx, p: Pose, pal: HdPalette, x: number, y: number, w: num
   c.stroke();
 }
 
-function blush(c: Ctx, p: Pose, pal: HdPalette, x: number, y: number, r: number) {
+export function blush(c: Ctx, p: Pose, pal: HdPalette, x: number, y: number, r: number) {
   const a = Math.min(1, p.blush) * 0.55;
   if (a <= 0.02) return;
   for (const side of [-1, 1]) {
@@ -393,7 +607,7 @@ function blush(c: Ctx, p: Pose, pal: HdPalette, x: number, y: number, r: number)
 // Shared body parts
 // ---------------------------------------------------------------------------------------------
 
-function legs(c: Ctx, p: Pose, pal: HdPalette, footColor: string, w = 11, spread = 12) {
+export function legs(c: Ctx, p: Pose, pal: HdPalette, footColor: string, w = 11, spread = 12) {
   for (const side of [-1, 1]) {
     const lift = side < 0 ? p.legL : p.legR;
     const fx = side * (spread + 1);
@@ -412,7 +626,7 @@ function legs(c: Ctx, p: Pose, pal: HdPalette, footColor: string, w = 11, spread
   }
 }
 
-function arms(c: Ctx, p: Pose, pal: HdPalette, pawColor: string, shoulderY = -50, w = 9, len = 21) {
+export function arms(c: Ctx, p: Pose, pal: HdPalette, pawColor: string, shoulderY = -50, w = 9, len = 21) {
   for (const side of [-1, 1]) {
     const a = side < 0 ? p.armL : p.armR;
     const sx = side * 17;
@@ -423,7 +637,7 @@ function arms(c: Ctx, p: Pose, pal: HdPalette, pawColor: string, shoulderY = -50
   }
 }
 
-function belly(c: Ctx, pal: HdPalette, x: number, y: number, rx: number, ry: number) {
+export function belly(c: Ctx, pal: HdPalette, x: number, y: number, rx: number, ry: number) {
   const g = c.createLinearGradient(0, y - ry, 0, y + ry);
   g.addColorStop(0, pal.belly);
   g.addColorStop(1, pal.bellyDark);
@@ -1011,8 +1225,7 @@ function accessoryHead(c: Ctx, a: Accessory, sp: HdSpecies, p: Pose) {
       c.restore();
       break;
     case 'glasses': {
-      const ey = sp.kind === 'frog' ? -14 : sp.kind === 'sheep' ? 3 : -4;
-      const ex = sp.kind === 'frog' ? 15 : sp.kind === 'sheep' ? 9 : 12;
+      const [ex, ey] = eyesOf(sp);
       c.strokeStyle = '#1f1b2b';
       c.lineWidth = 2.4;
       for (const side of [-1, 1]) {
@@ -1085,6 +1298,70 @@ export function drawFood(c: Ctx, kind: FoodKind, x: number, y: number, left: num
       c.fillStyle = '#ffd34a';
       c.fillRect(8, -3, 3, 6);
       break;
+    case 'carrot':
+      c.beginPath();
+      c.moveTo(-4, -8);
+      c.lineTo(4, -8);
+      c.lineTo(0, 11);
+      c.closePath();
+      paint(c, '#ff8a2b', '#a14a08', 1.6);
+      c.fillStyle = '#4caf50';
+      c.fillRect(-3, -13, 2, 5);
+      c.fillRect(1, -13, 2, 5);
+      break;
+    case 'bone':
+      rrect(c, -9, -2.5, 18, 5, 2);
+      paint(c, '#f7f1e3', '#8a7f6a', 1.4);
+      for (const s of [-1, 1]) {
+        for (const d of [-1, 1]) {
+          ell(c, s * 9, d * 2.5, 3.2, 3.2);
+          paint(c, '#f7f1e3', '#8a7f6a', 1.4);
+        }
+      }
+      break;
+    case 'cookie':
+      ell(c, 0, 0, 9, 9);
+      paint(c, '#d99a54', '#7a4a1e', 1.6);
+      c.fillStyle = '#5c3317';
+      for (const [x, y] of [[-3, -3], [3, -1], [-1, 4], [4, 4]]) {
+        ell(c, x, y, 1.6, 1.6);
+        c.fill();
+      }
+      break;
+    case 'seed':
+      ell(c, 0, 0, 5, 8);
+      paint(c, '#3d3a33', '#111', 1.4);
+      ell(c, 0, 0, 2, 6);
+      c.fillStyle = '#d8d2c0';
+      c.fill();
+      break;
+    case 'star':
+      c.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const r = i % 2 ? 4 : 9;
+        const a = (i / 10) * TAU - Math.PI / 2;
+        c.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      c.closePath();
+      paint(c, '#ffd34a', '#a87a00', 1.6);
+      break;
+    case 'marshmallow':
+      rrect(c, -7, -6, 14, 12, 4);
+      paint(c, '#ffffff', '#b7a3b0', 1.4);
+      break;
+    case 'lettuce':
+      for (const [x, y] of [[-4, 0], [4, 0], [0, -4], [0, 4]]) {
+        ell(c, x, y, 6, 5);
+        paint(c, '#7ed957', '#3c8a2a', 1.2);
+      }
+      break;
+    case 'bamboo':
+      rrect(c, -3, -12, 6, 24, 2);
+      paint(c, '#7cc46b', '#3c7a33', 1.4);
+      c.fillStyle = '#4f8f43';
+      c.fillRect(-3, -4, 6, 1.5);
+      c.fillRect(-3, 4, 6, 1.5);
+      break;
     case 'clover':
       for (const a of [0, 2.1, 4.2]) {
         ell(c, Math.cos(a) * 5, Math.sin(a) * 5, 5, 5);
@@ -1151,6 +1428,9 @@ export function drawCharacter(
       case 'sheep':
         sheepHead(c, p, pal, gaze);
         break;
+      case 'critter':
+        critterHead(c, p, pal, sp.critter!, gaze);
+        break;
     }
     if (p.anger > 0.05) {
       c.save();
@@ -1182,6 +1462,9 @@ export function drawCharacter(
     case 'sheep':
       sheep(c, p, pal, head);
       break;
+    case 'critter':
+      critterBody(c, p, pal, sp.critter!, t, head);
+      break;
   }
   c.restore();
 }
@@ -1190,7 +1473,11 @@ export function drawCharacter(
 // Trick props
 // ---------------------------------------------------------------------------------------------
 
-const EYES: Record<HdKind, [number, number]> = { cat: [12, -4], frog: [15, -14], dragon: [12, -5], robot: [10, -5], sheep: [9, 3] };
+const EYES: Record<Exclude<HdKind, 'critter'>, [number, number]> = { cat: [12, -4], frog: [15, -14], dragon: [12, -5], robot: [10, -5], sheep: [9, 3] };
+
+export function eyesOf(sp: HdSpecies): [number, number] {
+  return sp.critter ? [sp.critter.eyes.x, sp.critter.eyes.y] : EYES[sp.kind as Exclude<HdKind, 'critter'>];
+}
 
 /** Props for tricks, drawn in character space on top of the character. `t` = seconds in state. */
 export function drawProps(c: Ctx, sp: HdSpecies, p: Pose, state: string, t: number) {
@@ -1214,7 +1501,7 @@ export function drawProps(c: Ctx, sp: HdSpecies, p: Pose, state: string, t: numb
     case 'shades': {
       const drop = Math.min(1, t / 0.7);
       const ease = 1 - Math.pow(1 - drop, 3);
-      const [ex, ey] = EYES[sp.kind];
+      const [ex, ey] = eyesOf(sp);
       const y = headY + ey + 2 - (1 - ease) * 70 + (drop < 1 ? 0 : Math.sin(t * 2) * 0.5);
       c.save();
       c.translate(0, y);
@@ -1257,6 +1544,63 @@ export function drawProps(c: Ctx, sp: HdSpecies, p: Pose, state: string, t: numb
       c.lineTo(0, -26);
       c.stroke();
       c.restore();
+      break;
+    }
+    case 'bubblegum': {
+      if (t < 1.0 || t > 2.42) break;
+      const r = Math.min(17, 2 + (t - 1.0) * 12);
+      const [, ey] = eyesOf(sp);
+      const y = headY + ey + 14 + r * 0.6;
+      ell(c, p.face * 2.5, y, r, r * 0.92);
+      const g = c.createRadialGradient(-r * 0.3, y - r * 0.35, 1, 0, y, r);
+      g.addColorStop(0, '#ffe0ef');
+      g.addColorStop(1, '#ff7ab8');
+      c.save();
+      c.globalAlpha *= 0.92;
+      paint(c, g, '#c2457f', 1.6);
+      c.restore();
+      ell(c, -r * 0.35, y - r * 0.4, r * 0.18, r * 0.12);
+      c.fillStyle = 'rgba(255,255,255,0.85)';
+      c.fill();
+      break;
+    }
+    case 'yoyo': {
+      const [hx, hy] = armEnd(1, p.armR, 17, -50, 21);
+      const drop = 26 + 22 * Math.abs(Math.sin(t * 3.5));
+      c.strokeStyle = 'rgba(40,30,50,0.8)';
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(hx, hy);
+      c.lineTo(hx, hy + drop);
+      c.stroke();
+      ell(c, hx, hy + drop, 6, 6);
+      paint(c, '#ff4f6d', '#7a1a2e', 1.6);
+      c.save();
+      c.translate(hx, hy + drop);
+      c.rotate(t * 12);
+      c.fillStyle = '#ffd34a';
+      c.fillRect(-1, -6, 2, 12);
+      c.restore();
+      break;
+    }
+    case 'selfie': {
+      const [hx, hy] = armEnd(1, p.armR, 17, -50, 21);
+      rrect(c, hx - 5, hy - 16, 10, 17, 2.5);
+      paint(c, '#2b2b3a', '#0b0b12', 1.6);
+      ell(c, hx, hy - 12, 1.4, 1.4);
+      c.fillStyle = '#9fd3ff';
+      c.fill();
+      if (t > 1.45 && t < 1.75) {
+        c.save();
+        c.globalAlpha = 1 - (t - 1.45) / 0.3;
+        ell(c, hx, hy - 12, 60, 60);
+        const g = c.createRadialGradient(hx, hy - 12, 0, hx, hy - 12, 60);
+        g.addColorStop(0, 'rgba(255,255,255,0.95)');
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        c.fillStyle = g;
+        c.fill();
+        c.restore();
+      }
       break;
     }
     case 'meditate': {

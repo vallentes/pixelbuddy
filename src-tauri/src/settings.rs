@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 
 pub const ACTIONS: &[&str] = &[
     "none", "happy", "dance", "feed", "play", "angry", "sleep", "celebrate", "wave", "joke", "sing", "trick", "tickle",
-    "sneeze", "scared", "backflip", "moonwalk", "juggle", "magic", "karate", "flex", "shades", "meditate",
+    "sneeze", "scared", "backflip", "moonwalk", "juggle", "magic", "karate", "flex", "shades", "meditate", "airguitar",
+    "cartwheel", "selfie", "yoyo",
 ];
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

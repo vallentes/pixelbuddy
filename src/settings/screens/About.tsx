@@ -10,7 +10,7 @@ export function AboutScreen() {
       <Card>
         <Wordmark px={4} />
         <p className="muted">Version {boot.version}</p>
-        <p>Five original pets that live on your desktop. Made by Vallentes. Free, no ads, no tracking.</p>
+        <p>Fifteen original pets that live on your desktop. Made by Vallentes. Free, no ads, no tracking.</p>
         <button className="btn small" onClick={() => api.openSupportLink()}>☕ Buy me a coffee</button>
       </Card>
       <Card title="Privacy">

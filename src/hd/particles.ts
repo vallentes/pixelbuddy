@@ -37,6 +37,8 @@ const EMIT: Partial<Record<PetState, { k: PKind; rate: number; x: [number, numbe
   meditate: [{ k: 'sparkle', rate: 1.5, x: [-40, 40], y: [-100, -20] }],
   flex: [{ k: 'sparkle', rate: 2, x: [-36, 36], y: [-80, -50] }],
   moonwalk: [{ k: 'note', rate: 1.2, x: [-30, 30], y: [-100, -80] }],
+  airguitar: [{ k: 'note', rate: 4, x: [-40, 40], y: [-100, -50] }, { k: 'star', rate: 1.5, x: [-40, 40], y: [-110, -80] }],
+  tiptoe: [{ k: 'sweat', rate: 0.6, x: [18, 26], y: [-104, -96] }],
   wave: [{ k: 'sparkle', rate: 1.5, x: [30, 40], y: [-90, -70] }],
 };
 

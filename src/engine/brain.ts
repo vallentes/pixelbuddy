@@ -33,7 +33,13 @@ export type Action =
   | 'hiccup'
   | 'meditate'
   | 'toot'
-  | 'stretch';
+  | 'stretch'
+  | 'airguitar'
+  | 'bubblegum'
+  | 'cartwheel'
+  | 'tiptoe'
+  | 'yoyo'
+  | 'selfie';
 
 export interface Needs {
   hunger: number;
@@ -81,10 +87,16 @@ export const DURATION: Record<string, number> = {
   meditate: 7000,
   toot: 2400,
   stretch: 2000,
+  airguitar: 3600,
+  bubblegum: 3400,
+  cartwheel: 1800,
+  tiptoe: 3600,
+  yoyo: 3800,
+  selfie: 3000,
 };
 
 /** Tricks a pet can show off (also what 'trick' picks from). */
-export const TRICKS = ['backflip', 'moonwalk', 'juggle', 'magic', 'karate', 'flex', 'peekaboo', 'shades', 'meditate', 'stretch'] as const;
+export const TRICKS = ['backflip', 'moonwalk', 'juggle', 'magic', 'karate', 'flex', 'peekaboo', 'shades', 'meditate', 'stretch', 'airguitar', 'bubblegum', 'cartwheel', 'tiptoe', 'yoyo', 'selfie'] as const;
 
 const ANGRY_CLICKS = 5;
 const CLICK_WINDOW = 2000;
@@ -225,6 +237,11 @@ export class Brain {
       return this.facing * this.speed * (scripted ? this.speedMul : 1);
     }
 
+    if ((this.state === 'tiptoe' || this.state === 'cartwheel') && w.now < this.until) {
+      const v = this.facing * this.speed * (this.state === 'tiptoe' ? 0.3 : 0.9);
+      if ((v < 0 && w.x <= w.minX + 2) || (v > 0 && w.x >= w.maxX - 2)) return 0;
+      return v;
+    }
     if (this.state === 'moonwalk' && w.now < this.until) {
       const v = -this.facing * this.speed * 0.55;
       if ((v < 0 && w.x <= w.minX + 2) || (v > 0 && w.x >= w.maxX - 2)) return 0;

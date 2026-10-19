@@ -229,6 +229,12 @@ export const ANIMS: Record<PetState, StateAnim> = {
   meditate: sleep,
   toot: sneeze,
   stretch: yawn,
+  airguitar: dance,
+  bubblegum: eat,
+  cartwheel: spin,
+  tiptoe: walk,
+  yoyo: laugh,
+  selfie: wave,
 };
 export const STATES = Object.keys(ANIMS) as PetState[];
 /** Extra bob for floaty species so they hover instead of standing. */

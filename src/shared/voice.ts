@@ -22,7 +22,7 @@ function listenOnce() {
 }
 
 export type VoiceMode = 'off' | 'babble' | 'speech' | 'natural';
-export type Sfx = 'chomp' | 'boing' | 'pop' | 'snore' | 'whoosh' | 'thud' | 'grumble' | 'sparkle' | 'achoo' | 'beep' | 'toot' | 'hic' | 'rimshot';
+export type Sfx = 'chomp' | 'boing' | 'pop' | 'snore' | 'whoosh' | 'thud' | 'grumble' | 'sparkle' | 'achoo' | 'beep' | 'toot' | 'hic' | 'rimshot' | 'guitar' | 'shutter';
 
 interface VoiceProfile {
   base: number;
@@ -38,6 +38,16 @@ const PROFILES: Record<string, VoiceProfile> = {
   ember: { base: 300, wave: 'sawtooth', spread: 0.3, pitch: 0.6, rate: 0.95 },
   bolt: { base: 880, wave: 'square', spread: 0.15, pitch: 0.3, rate: 1.05 },
   nimbus: { base: 470, wave: 'sine', spread: 0.25, pitch: 1.15, rate: 0.85 },
+  pickles: { base: 420, wave: 'triangle', spread: 0.2, pitch: 0.9, rate: 0.95 },
+  clover: { base: 820, wave: 'triangle', spread: 0.55, pitch: 1.7, rate: 1.25 },
+  waffles: { base: 600, wave: 'square', spread: 0.45, pitch: 1.4, rate: 1.2 },
+  hoot: { base: 380, wave: 'sine', spread: 0.3, pitch: 0.8, rate: 0.9 },
+  biscuit: { base: 900, wave: 'triangle', spread: 0.4, pitch: 1.8, rate: 1.3 },
+  zib: { base: 700, wave: 'square', spread: 0.6, pitch: 1.6, rate: 1.1 },
+  boo: { base: 500, wave: 'sine', spread: 0.5, pitch: 1.2, rate: 0.9 },
+  shelly: { base: 300, wave: 'sine', spread: 0.15, pitch: 0.7, rate: 0.6 },
+  inky: { base: 650, wave: 'triangle', spread: 0.5, pitch: 1.4, rate: 1.15 },
+  bao: { base: 330, wave: 'triangle', spread: 0.2, pitch: 0.75, rate: 0.8 },
 };
 
 const VOWELS: Record<string, number> = { a: 0, e: 0.2, i: 0.35, o: -0.15, u: -0.25, y: 0.25 };
@@ -249,6 +259,32 @@ export class Voice {
         o.stop(t + 0.55);
         break;
       }
+      case 'guitar': {
+        // A tiny distorted power chord.
+        for (const f0 of [110, 165, 220]) {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          const sh = ctx.createWaveShaper();
+          const curve = new Float32Array(256);
+          for (let i = 0; i < 256; i++) {
+            const x = (i / 128) - 1;
+            curve[i] = Math.tanh(x * 6);
+          }
+          sh.curve = curve;
+          o.type = 'sawtooth';
+          o.frequency.setValueAtTime(f0, t);
+          g.gain.setValueAtTime(v * 0.35, t);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+          o.connect(sh).connect(g).connect(ctx.destination);
+          o.start(t);
+          o.stop(t + 1.15);
+        }
+        break;
+      }
+      case 'shutter':
+        noise(t, 0.05, 3000, v * 1.2);
+        noise(t + 0.09, 0.05, 2500, v);
+        break;
       case 'hic':
         tone('square', 900, 1400, t, 0.07, v * 0.5);
         break;

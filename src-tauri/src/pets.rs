@@ -2,10 +2,13 @@ use crate::db::Db;
 use rusqlite::{params, Connection, OptionalExtension, Row};
 use serde::{Deserialize, Serialize};
 
-pub const SPECIES: &[&str] = &["mochi", "pip", "ember", "bolt", "nimbus"];
+pub const SPECIES: &[&str] = &[
+    "mochi", "pip", "ember", "bolt", "nimbus", "pickles", "clover", "waffles", "hoot", "biscuit", "zib", "boo", "shelly", "inky",
+    "bao",
+];
 pub const COLORS: &[&str] = &["classic", "rose", "mint", "sky", "golden", "shadow"];
 pub const ACCESSORIES: &[&str] = &["none", "bow", "tophat", "crown", "scarf", "glasses", "flower"];
-pub const MAX_PETS: usize = 8;
+pub const MAX_PETS: usize = 12;
 pub const MAX_NAME_LEN: usize = 16;
 
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -192,7 +195,8 @@ pub fn apply_action(p: &mut Pet, action: &str, now: i64) -> bool {
         "pat" | "happy" => p.happiness = clamp(p.happiness + 4.0),
         "dance" | "celebrate" | "sing" | "trick" => p.happiness = clamp(p.happiness + 6.0),
         "joke" | "tickle" | "wave" => p.happiness = clamp(p.happiness + 3.0),
-        "backflip" | "moonwalk" | "juggle" | "magic" | "karate" | "flex" | "peekaboo" | "shades" => {
+        "backflip" | "moonwalk" | "juggle" | "magic" | "karate" | "flex" | "peekaboo" | "shades"
+        | "airguitar" | "bubblegum" | "cartwheel" | "tiptoe" | "yoyo" | "selfie" => {
             p.happiness = clamp(p.happiness + 5.0);
             p.energy = clamp(p.energy - 2.0);
         }

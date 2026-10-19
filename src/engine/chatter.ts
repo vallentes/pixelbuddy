@@ -58,7 +58,14 @@ export type Topic =
   | 'hiccup'
   | 'meditate'
   | 'toot'
-  | 'stretch';
+  | 'stretch'
+  | 'airguitar'
+  | 'bubblegum'
+  | 'bubblePop'
+  | 'cartwheel'
+  | 'tiptoe'
+  | 'yoyo'
+  | 'selfie';
 
 export type Chattiness = 'off' | 'rare' | 'normal' | 'chatty';
 
@@ -283,4 +290,4 @@ export function bubbleMs(text: string): number {
 }
 
 export const ALL_TOPICS = [...new Set([...Object.keys(SHARED), ...Object.keys(EXTRA_SHARED)])] as Topic[];
-export const SPECIES_WITH_LINES = Object.keys(SPECIES_LINES);
+export const SPECIES_WITH_LINES = [...new Set([...Object.keys(SPECIES_LINES), ...Object.keys(EXTRA_SPECIES)])];

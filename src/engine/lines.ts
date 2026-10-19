@@ -1,3 +1,5 @@
+import { MORE_JOKES, NEW_SPECIES_JOKES, NEW_SPECIES_LINES } from './lines2';
+
 // The big book of pet lines. All original. {name} = pet, {user} = you. *word* = emphasis.
 
 /** Two-part jokes: setup, then (after a pause) the punchline. */
@@ -174,6 +176,13 @@ export const EXTRA_SHARED: Record<string, string[]> = {
   meditate: ['*Ommmm*...', 'I am one with the *taskbar*.', 'Inner peace... and *snacks*.'],
   toot: ['...that was *not* me.', 'Oops. *Excuse* me!', 'I blame the *dragon*.', 'Must have been the *wind*.'],
   stretch: ['Aaaand *stretch*!', 'Ahh, that hits the spot.', 'Stretch with me, {user}!'],
+  airguitar: ['*SHRED!*', 'Thank you, desktop! You have been *amazing*!', 'This next song is called *Snack Time*.', 'ROCK AND *ROLL*!'],
+  bubblegum: ['*Chew chew chew*...', 'Watch this *bubble*.', 'Biggest bubble *ever*. Probably.'],
+  bubblePop: ['*POP!* It is in my *fur* now.', 'Okay that was *too* big.', '*Pop!* Worth it.'],
+  cartwheel: ['*Wheee!* Cartwheel!', 'Gymnastics *gold* medal!', 'I am *very* bendy.'],
+  tiptoe: ['*Shhh*. I am sneaking.', 'You did not see me. *Nobody* saw me.', 'Ninja *mode*.'],
+  yoyo: ['Walk the *dog*!', 'Up... down... *up*!', 'I am a yo-yo *professional*.'],
+  selfie: ['Say *cheese*!', 'Selfie *time*! Smile, {user}!', 'Getting my *good side*.', 'This one is going on my *desktop*.'],
   sing: ['Laaa la la, *snack* time!', 'This song is about *you*!', 'Do re mi fa *SO* cute!'],
 };
 
@@ -255,3 +264,8 @@ export const MORE_CONVERSATIONS: [string, string, string?][] = [
   ['What is your favorite snack, {b}?', 'Yes.', 'Same.'],
   ['Shh. I am hiding from the *mouse*.', 'It can see you. It is *right there*.', 'Then I will hide *harder*.'],
 ];
+
+// Newer pets and extra jokes.
+JOKES.push(...MORE_JOKES);
+Object.assign(SPECIES_JOKES, NEW_SPECIES_JOKES);
+Object.assign(EXTRA_SPECIES, NEW_SPECIES_LINES);

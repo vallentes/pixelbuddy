@@ -147,5 +147,9 @@ export const ACTIONS: { id: string; label: string }[] = [
   { id: 'flex', label: 'Flex muscles' },
   { id: 'shades', label: 'Deal with it (sunglasses)' },
   { id: 'meditate', label: 'Meditate' },
+  { id: 'airguitar', label: 'Air guitar' },
+  { id: 'cartwheel', label: 'Cartwheel' },
+  { id: 'selfie', label: 'Selfie' },
+  { id: 'yoyo', label: 'Yo-yo' },
 ];
 

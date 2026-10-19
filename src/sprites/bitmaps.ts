@@ -27,6 +27,14 @@ export const FOOD: Record<FoodKind, Bitmap> = {
   pepper: { rows: ['..g', '.PP', 'PPP', 'PP.'], colors: { P: '#ff3b30', g: '#4caf50' } },
   battery: { rows: ['GGGG.', 'GgGGy', 'GGGG.'], colors: { G: '#5be37d', g: '#c8ffd6', y: '#ffd34a' } },
   clover: { rows: ['C.C', '.C.', 'C.C', '..s'], colors: { C: '#5fbf5a', s: '#3e7d3a' } },
+  carrot: { rows: ['.gg', 'OO.', 'OO.', 'O..'], colors: { O: '#ff8a2b', g: '#4caf50' } },
+  bone: { rows: ['w...w', 'wwwww', 'w...w'], colors: { w: '#f7f1e3' } },
+  cookie: { rows: ['.CCC.', 'CcCCC', 'CCCcC', '.CCC.'], colors: { C: '#d99a54', c: '#5c3317' } },
+  seed: { rows: ['.s.', 'sSs', 'sSs', '.s.'], colors: { s: '#3d3a33', S: '#d8d2c0' } },
+  star: { rows: ['..Y..', 'YYYYY', '.YYY.', 'Y...Y'], colors: { Y: '#ffd34a' } },
+  marshmallow: { rows: ['wwww', 'wppw', 'wwww'], colors: { w: '#ffffff', p: '#ffd6e6' } },
+  lettuce: { rows: ['.LL.', 'LlLL', 'LLlL', '.LL.'], colors: { L: '#7ed957', l: '#c8f5a8' } },
+  bamboo: { rows: ['G', 'g', 'G', 'G', 'g', 'G'], colors: { G: '#7cc46b', g: '#4f8f43' } },
 };
 
 /** Accessories are anchored by `anchor`: 'head' bottom row sits on the head top, 'neck' top row at the neck. */
