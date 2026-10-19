@@ -21,6 +21,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       PIXELBUDDY_TWITCH_CLIENT_ID: ${{ secrets.PIXELBUDDY_TWITCH_CLIENT_ID }}
+      HAS_WINDOWS_CERT: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,7 +33,7 @@ jobs:
       - run: npm test
       - run: cargo test --workspace
       - name: Import Windows certificate
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && env.HAS_WINDOWS_CERT == 'true'
         shell: pwsh
         run: |
           $bytes = [Convert]::FromBase64String("${{ secrets.WINDOWS_CERTIFICATE }}")
