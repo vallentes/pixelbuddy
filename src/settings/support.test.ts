@@ -31,6 +31,13 @@ describe('support links', () => {
     expect(decoded?.data).toBe(REVOLUT_URL);
   });
 
+  it('the README QR image encodes the Revolut link', async () => {
+    const fs = await import('node:fs');
+    const svg = fs.readFileSync('docs/revolut-qr.svg', 'utf8');
+    const expected = await QRCode.toString(REVOLUT_URL, { type: 'svg', margin: 2, width: 220, errorCorrectionLevel: 'M', color: { dark: '#191c1f', light: '#ffffff' } });
+    expect(svg).toBe(expected);
+  });
+
   it('the Support screen and Rust command use the same links', async () => {
     const fs = await import('node:fs');
     const screen = fs.readFileSync('src/settings/screens/Support.tsx', 'utf8');

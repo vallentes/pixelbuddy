@@ -19,6 +19,8 @@ jobs:
           - os: macos-latest
             args: '--target universal-apple-darwin'
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     env:
       PIXELBUDDY_TWITCH_CLIENT_ID: ${{ secrets.PIXELBUDDY_TWITCH_CLIENT_ID }}
       HAS_WINDOWS_CERT: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
@@ -55,3 +57,12 @@ jobs:
             target/**/release/bundle/nsis/*.exe
             target/**/release/bundle/msi/*.msi
             target/**/release/bundle/dmg/*.dmg
+      - name: Attach installers to the GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          files=(target/release/bundle/nsis/*.exe target/release/bundle/msi/*.msi target/universal-apple-darwin/release/bundle/dmg/*.dmg)
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "PixelBuddy ${GITHUB_REF_NAME#v}" --notes "See README for install steps."
+          gh release upload "$GITHUB_REF_NAME" "${files[@]}" --clobber
