@@ -60,7 +60,7 @@ function Overlay() {
       </Row>
       <Row label="Send a test reaction" hint="Plays on your desktop pets and in the overlay.">
         <div className="actions">
-          {['happy', 'dance', 'feed', 'celebrate'].map((a) => (
+          {['happy', 'dance', 'evolve', 'confetti'].map((a) => (
             <button key={a} className="btn small secondary" onClick={() => api.sendTestReaction(a)}>{a}</button>
           ))}
         </div>

@@ -9,7 +9,7 @@ pub const ACTIONS: &[&str] = &[
     "feed", "play", "pat", "happy", "dance", "angry", "sleep", "wake", "celebrate", "wave", "joke", "sing", "trick", "tickle",
     "yawn", "sneeze", "scared", "sit", "backflip", "moonwalk", "juggle", "magic", "karate", "flex", "peekaboo",
     "shades", "trip", "hiccup", "meditate", "toot", "stretch", "airguitar", "bubblegum", "cartwheel", "tiptoe", "yoyo",
-    "selfie",
+    "selfie", "evolve", "confetti",
 ];
 
 #[derive(Debug, Clone, Serialize, PartialEq)]

@@ -115,6 +115,14 @@ describe('motion', () => {
     expect(body.y).toBe(800);
   });
 
+  it('shows off for Twitch evolve and parties for confetti', () => {
+    const b = new Brain(60);
+    b.act('evolve', 0);
+    expect(b.state).toBe('flex');
+    b.act('confetti', 10_000);
+    expect(b.state).toBe('dance');
+  });
+
   it('picks the monitor under a point, or the nearest one', () => {
     const rects = [
       { x: 0, y: 0, width: 1920, height: 1080 },

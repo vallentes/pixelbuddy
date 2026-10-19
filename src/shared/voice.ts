@@ -7,13 +7,27 @@ import { emit, listen } from '@tauri-apps/api/event';
 
 // Natural-voice requests waiting for the main window to start playing them.
 const waiting = new Map<string, (ms: number | null) => void>();
+// While a clip is recording, the main window also sends the generated audio back here.
+const capturing = new Map<string, (a: CapturedAudio) => void>();
 let listening = false;
+
+interface CapturedAudio {
+  reqId: string;
+  sr: number;
+  rate: number;
+  /** 16-bit PCM, base64. */
+  pcm: string;
+}
 function listenOnce() {
   if (listening) return;
   listening = true;
   void listen<{ reqId: string; ms: number }>('voice://started', (e) => {
     waiting.get(e.payload.reqId)?.(e.payload.ms);
     waiting.delete(e.payload.reqId);
+  }).catch(() => {});
+  void listen<CapturedAudio>('voice://audio', (e) => {
+    capturing.get(e.payload.reqId)?.(e.payload);
+    capturing.delete(e.payload.reqId);
   }).catch(() => {});
   void listen<{ reqId: string }>('voice://failed', (e) => {
     waiting.get(e.payload.reqId)?.(null);
@@ -82,6 +96,8 @@ export function syllables(text: string): { offset: number; accent: boolean }[] {
 export class Voice {
   private ctx: AudioContext | null = null;
   private busyUntil = 0;
+  private master: GainNode | null = null;
+  private tap: MediaStreamAudioDestinationNode | null = null;
 
   constructor(
     private species: string,
@@ -100,6 +116,47 @@ export class Voice {
     } catch {
       return null;
     }
+  }
+
+  /** Everything this pet plays goes through one node, so a recording can listen in. */
+  private out(ctx: AudioContext): AudioNode {
+    if (!this.master) {
+      this.master = ctx.createGain();
+      this.master.connect(ctx.destination);
+    }
+    return this.master;
+  }
+
+  /** Starts (or stops) sending this pet's sounds to an audio track for clip recording. */
+  recordTrack(on: boolean): MediaStreamTrack | null {
+    if (!on) {
+      if (this.tap && this.master) this.master.disconnect(this.tap);
+      this.tap = null;
+      return null;
+    }
+    const ctx = this.audio();
+    if (!ctx) return null;
+    if (!this.tap) {
+      this.tap = ctx.createMediaStreamDestination();
+      this.out(ctx).connect(this.tap);
+    }
+    return this.tap.stream.getAudioTracks()[0] ?? null;
+  }
+
+  /** Plays a natural-voice line into the recording only (the speakers already hear it). */
+  private intoTap(a: CapturedAudio) {
+    const ctx = this.ctx;
+    if (!ctx || !this.tap) return;
+    const bytes = Uint8Array.from(atob(a.pcm), (c) => c.charCodeAt(0));
+    const ints = new Int16Array(bytes.buffer, 0, bytes.length >> 1);
+    const buf = ctx.createBuffer(1, Math.max(1, ints.length), a.sr);
+    const ch = buf.getChannelData(0);
+    for (let i = 0; i < ints.length; i++) ch[i] = ints[i] / 32768;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = a.rate;
+    src.connect(this.tap);
+    src.start();
   }
 
   private profile() {
@@ -125,7 +182,8 @@ export class Voice {
           window.clearTimeout(timer);
           resolve(ms);
         });
-        void emit('voice://speak', { text, species: this.species, reqId }).catch(() => resolve(null));
+        if (this.tap) capturing.set(reqId, (a) => this.intoTap(a));
+        void emit('voice://speak', { text, species: this.species, reqId, capture: !!this.tap }).catch(() => resolve(null));
       });
     }
     if (s.mode === 'speech' && 'speechSynthesis' in window) {
@@ -168,7 +226,7 @@ export class Voice {
       gain.gain.setValueAtTime(0, t);
       gain.gain.linearRampToValueAtTime(peak, t + 0.008);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(this.out(ctx));
       osc.start(t);
       osc.stop(t + len + 0.02);
       t += len + 0.025;
@@ -193,7 +251,7 @@ export class Voice {
       o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), start + len);
       g.gain.setValueAtTime(vol, start);
       g.gain.exponentialRampToValueAtTime(0.0001, start + len);
-      o.connect(g).connect(ctx.destination);
+      o.connect(g).connect(this.out(ctx));
       o.start(start);
       o.stop(start + len + 0.02);
     };
@@ -208,7 +266,7 @@ export class Voice {
       f.type = 'bandpass';
       f.frequency.value = freq;
       g.gain.value = vol;
-      src.connect(f).connect(g).connect(ctx.destination);
+      src.connect(f).connect(g).connect(this.out(ctx));
       src.start(start);
     };
     switch (kind) {
@@ -254,7 +312,7 @@ export class Voice {
         g.gain.linearRampToValueAtTime(v * 0.9, t + 0.03);
         for (let i = 1; i < 8; i++) g.gain.setValueAtTime(v * (i % 2 ? 0.5 : 0.9), t + i * 0.05);
         g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-        o.connect(f).connect(g).connect(ctx.destination);
+        o.connect(f).connect(g).connect(this.out(ctx));
         o.start(t);
         o.stop(t + 0.55);
         break;
@@ -275,7 +333,7 @@ export class Voice {
           o.frequency.setValueAtTime(f0, t);
           g.gain.setValueAtTime(v * 0.35, t);
           g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
-          o.connect(sh).connect(g).connect(ctx.destination);
+          o.connect(sh).connect(g).connect(this.out(ctx));
           o.start(t);
           o.stop(t + 1.15);
         }

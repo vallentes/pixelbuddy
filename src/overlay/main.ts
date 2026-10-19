@@ -3,7 +3,7 @@
 
 import { Brain, type Action } from '../engine/brain';
 import { FrameLoop, stepWalk } from '../engine/motion';
-import { REACTION_TEXT, createRenderer, type ArtStyle, type Renderer } from '../shared/renderer';
+import { REACTION_TEXT, createRenderer, evolve, type ArtStyle, type Renderer } from '../shared/renderer';
 import type { Reaction } from '../shared/types';
 import { SIZE } from '../sprites/raster';
 import '../shared/fonts';
@@ -115,6 +115,8 @@ function onReaction(r: Reaction) {
   for (const a of actors) {
     if (r.petId !== null && r.petId !== a.pet.id) continue;
     a.brain.act(r.action as Action, now);
+    if (r.action === 'evolve') evolve(a.sprite, () => [a.pet.species, a.pet.color, a.pet.accessory]);
+    else if (r.action === 'confetti') a.sprite.boost('confetti');
     a.sprite.say(r.label ?? REACTION_TEXT[r.action] ?? '!', r.label ? 4000 : 1500);
   }
 }

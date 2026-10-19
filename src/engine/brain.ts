@@ -39,7 +39,9 @@ export type Action =
   | 'cartwheel'
   | 'tiptoe'
   | 'yoyo'
-  | 'selfie';
+  | 'selfie'
+  | 'evolve'
+  | 'confetti';
 
 export interface Needs {
   hunger: number;
@@ -133,7 +135,10 @@ export class Brain {
       case 'play':
       case 'dance':
       case 'celebrate':
+      case 'confetti':
         return this.set('dance', now, DURATION.dance);
+      case 'evolve':
+        return this.set('flex', now, DURATION.flex);
       case 'pat':
       case 'happy':
         return this.set('happy', now, DURATION.happy);

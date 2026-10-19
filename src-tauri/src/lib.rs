@@ -209,6 +209,7 @@ pub fn run() {
             commands::twitch_set_reward_action,
             commands::show_settings,
             commands::open_data_folder,
+            commands::save_clip,
             commands::quit_app,
             voice_model::voice_model_ready,
             voice_model::voice_model_download,

@@ -394,6 +394,29 @@ pub fn open_data_folder(app: AppHandle) -> CmdResult<()> {
     app.opener().open_path(dir.to_string_lossy().to_string(), None::<&str>).map_err(err)
 }
 
+/// Saves a clip from "Record My Buddy" (raw video bytes in the request body) to
+/// Videos/PixelBuddy and shows it in the file manager.
+#[tauri::command]
+pub fn save_clip(app: AppHandle, request: tauri::ipc::Request<'_>) -> CmdResult<String> {
+    let tauri::ipc::InvokeBody::Raw(bytes) = request.body() else {
+        return Err("Expected video data.".into());
+    };
+    if bytes.is_empty() || bytes.len() > 300 * 1024 * 1024 {
+        return Err("The clip is empty or too large.".into());
+    }
+    let ext = match request.headers().get("x-pb-ext").and_then(|v| v.to_str().ok()) {
+        Some("mp4") => "mp4",
+        _ => "webm",
+    };
+    let base = app.path().video_dir().or_else(|_| app.path().download_dir()).map_err(err)?;
+    let dir = base.join("PixelBuddy");
+    std::fs::create_dir_all(&dir).map_err(err)?;
+    let path = dir.join(format!("PixelBuddy-{}.{ext}", now()));
+    std::fs::write(&path, bytes).map_err(err)?;
+    let _ = app.opener().reveal_item_in_dir(&path);
+    Ok(path.to_string_lossy().into_owned())
+}
+
 #[tauri::command]
 pub fn quit_app(app: AppHandle) {
     app.exit(0);

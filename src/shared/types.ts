@@ -35,6 +35,7 @@ export interface Settings {
   voiceVolume: number;
   soundEffects: boolean;
   userName: string;
+  naughtyMode: boolean;
 }
 
 export interface Pet {
@@ -137,6 +138,8 @@ export const ACTIONS: { id: string; label: string }[] = [
   { id: 'feed', label: 'Eat a snack' },
   { id: 'play', label: 'Play' },
   { id: 'celebrate', label: 'Celebrate' },
+  { id: 'evolve', label: 'Evolve (golden + crown for a minute)' },
+  { id: 'confetti', label: 'Confetti party' },
   { id: 'angry', label: 'Grumble' },
   { id: 'sleep', label: 'Take a nap' },
   { id: 'wave', label: 'Wave hello' },

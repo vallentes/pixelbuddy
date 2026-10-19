@@ -193,7 +193,7 @@ pub fn apply_action(p: &mut Pet, action: &str, now: i64) -> bool {
             p.last_played_at = Some(now);
         }
         "pat" | "happy" => p.happiness = clamp(p.happiness + 4.0),
-        "dance" | "celebrate" | "sing" | "trick" => p.happiness = clamp(p.happiness + 6.0),
+        "dance" | "celebrate" | "sing" | "trick" | "evolve" | "confetti" => p.happiness = clamp(p.happiness + 6.0),
         "joke" | "tickle" | "wave" => p.happiness = clamp(p.happiness + 3.0),
         "backflip" | "moonwalk" | "juggle" | "magic" | "karate" | "flex" | "peekaboo" | "shades"
         | "airguitar" | "bubblegum" | "cartwheel" | "tiptoe" | "yoyo" | "selfie" => {

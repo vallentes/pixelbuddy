@@ -10,6 +10,8 @@ export const REACTION_TEXT: Record<string, string> = {
   play: 'Wheee!',
   dance: '♥',
   celebrate: 'Yay!',
+  evolve: 'I EVOLVED!',
+  confetti: 'Party!',
   happy: '♥',
   pat: '♥',
   angry: 'Hmph!',
@@ -36,10 +38,22 @@ export interface Renderer {
   say(text: string, ms: number, now?: number, charMs?: number): void;
   /** Draws with feet on `bottom`, centred on `cx`; `pixel` = device pixels per sprite pixel. */
   draw(ctx: CanvasRenderingContext2D, cx: number, bottom: number, pixel: number, now?: number): void;
+  /** Twitch moments: "evolve" (bigger and sparkly for `ms`) or a confetti shower. */
+  boost(kind: 'evolve' | 'confetti', ms?: number): void;
   /** Is the character opaque at this canvas point? */
   hitAt(x: number, y: number): boolean;
   /** Which body part is at this canvas point (call only after hitAt is true). */
   partAt(x: number, y: number): BodyPart;
+}
+
+/** Twitch sub "evolution": golden, crowned and sparkly for a minute, then back to normal. */
+export function evolve(r: Renderer, look: () => [string, ColorVariant, Accessory], ms = 60_000) {
+  r.setLook(look()[0], 'golden', 'crown');
+  r.boost('evolve', ms);
+  window.setTimeout(() => {
+    const [species, color, accessory] = look();
+    r.setLook(species, color, accessory);
+  }, ms);
 }
 
 export function createRenderer(style: ArtStyle, species: string, color: ColorVariant, accessory: Accessory): Renderer {
@@ -79,6 +93,10 @@ export class PetSprite implements Renderer {
   }
 
   setGaze() {}
+
+  boost() {
+    // Pixel art has no particle effects; evolving still changes the look (see evolve()).
+  }
 
   advance(dtMs: number, speed: number) {
     const r = this.sheet.rows[this.state];

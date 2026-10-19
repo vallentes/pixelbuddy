@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, errorMessage } from '../../shared/api';
+import { decodeBuddy, encodeBuddy, markVisitor, type Buddy } from '../../shared/buddyCode';
 import type { MonitorInfo, Pet } from '../../shared/types';
 import { ACCESSORY_LIST } from '../../sprites/bitmaps';
 import { VARIANTS, variantPalette } from '../../sprites/palette';
@@ -67,8 +68,84 @@ function AdoptModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function ShareCode({ pet }: { pet: Pet }) {
+  const { boot } = useStore();
+  const [copied, setCopied] = useState(false);
+  const code = encodeBuddy({ species: pet.species, color: pet.color, accessory: pet.accessory, name: pet.name, from: boot.settings.userName });
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // the code is selectable, so it can still be copied by hand
+    }
+  };
+  return (
+    <div className="share-code">
+      <code title="Send this to a friend. They paste it under Import a buddy.">{code}</code>
+      <button className="btn small secondary" onClick={copy}>{copied ? 'Copied!' : 'Copy'}</button>
+    </div>
+  );
+}
+
+function ImportBuddy({ full }: { full: boolean }) {
+  const [code, setCode] = useState('');
+  const [preview, setPreview] = useState<Buddy | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const read = (v: string) => {
+    setCode(v);
+    setError(null);
+    if (!v.trim()) return setPreview(null);
+    try {
+      setPreview(decodeBuddy(v));
+    } catch (e) {
+      setPreview(null);
+      setError(errorMessage(e));
+    }
+  };
+  const bring = async () => {
+    if (!preview) return;
+    setBusy(true);
+    try {
+      const p = await api.createPet(preview.species, preview.name);
+      markVisitor(p.id, preview.from);
+      await api.updatePet(p.id, { color: preview.color, accessory: preview.accessory });
+      setCode('');
+      setPreview(null);
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="card import-buddy">
+      <h2>Import a buddy</h2>
+      <p className="muted">Got a buddy code from a friend? Paste it here and their pet comes to visit your desktop.</p>
+      <div className="actions">
+        <input type="text" aria-label="Buddy code" placeholder="PB1-..." value={code} onChange={(e) => read(e.target.value)} style={{ flex: 1 }} />
+        <button className="btn" disabled={!preview || busy || full} onClick={bring}>Bring them over</button>
+      </div>
+      {preview && (
+        <div className="pet-head" style={{ marginTop: 10 }}>
+          <PetPreview species={preview.species} color={preview.color} accessory={preview.accessory} state="wave" scale={2} label={preview.name} />
+          <span>
+            <b>{preview.name}</b> the {getSpecies(preview.species).name}
+            {preview.from ? <span className="muted"> · from {preview.from}</span> : null}
+          </span>
+        </div>
+      )}
+      {full && <p className="muted">You have the most pets PixelBuddy allows. Say goodbye to one first.</p>}
+      {error && <p className="error">{error}</p>}
+    </section>
+  );
+}
+
 function PetCard({ pet, monitors }: { pet: Pet; monitors: MonitorInfo[] }) {
   const [name, setName] = useState(pet.name);
+  const [sharing, setSharing] = useState(false);
   const [preview, setPreview] = useState<{ state: PetState; bubble: string | null }>({ state: 'idle', bubble: null });
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
@@ -161,6 +238,7 @@ function PetCard({ pet, monitors }: { pet: Pet; monitors: MonitorInfo[] }) {
           <button className={`toggle ${pet.visible ? 'on' : ''}`} role="switch" aria-checked={pet.visible} aria-label="Show on desktop" onClick={() => patch({ visible: !pet.visible })} />
         </div>
       </div>
+      {sharing ? <ShareCode pet={pet} /> : null}
       {confirm ? (
         <div className="actions">
           <span className="muted">Say goodbye to {pet.name}?</span>
@@ -168,7 +246,10 @@ function PetCard({ pet, monitors }: { pet: Pet; monitors: MonitorInfo[] }) {
           <button className="btn small secondary" onClick={() => setConfirm(false)}>Keep</button>
         </div>
       ) : (
-        <button className="btn small secondary" style={{ alignSelf: 'flex-start' }} onClick={() => setConfirm(true)}>Remove pet</button>
+        <div className="actions">
+          <button className="btn small secondary" onClick={() => setSharing((s) => !s)}>{sharing ? 'Hide code' : 'Share buddy code'}</button>
+          <button className="btn small secondary" onClick={() => setConfirm(true)}>Remove pet</button>
+        </div>
       )}
       {error && <p className="error">{error}</p>}
     </section>
@@ -195,6 +276,7 @@ export function PetsScreen() {
           </button>
         )}
       </div>
+      <ImportBuddy full={boot.pets.length >= boot.maxPets} />
       {adopting && <AdoptModal onClose={() => setAdopting(false)} />}
     </>
   );

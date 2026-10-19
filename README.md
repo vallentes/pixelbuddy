@@ -2,7 +2,20 @@
 
 Free desktop pets for Windows and macOS. Fifteen original characters (a cat, frog, dragon, robot, cloud-sheep, penguin, bunny, puppy, owl, hamster, alien, ghost, turtle, octopus and panda) walk along your taskbar, talk, tell jokes, do 19 tricks, react when you poke them, and play with each other. Streamers get an OBS overlay and optional Twitch reactions.
 
-**[⬇ Download the latest release](https://github.com/vallentes/pixelbuddy/releases/latest)** · [How to install](#install)
+New in 1.3:
+
+- **Record a clip**: right-click a pet, Record a clip, portrait or landscape. It films a short show and saves it to your Videos folder. Only the pet is filmed, never your screen.
+- **Buddy codes**: share a pet as a short code (Settings, Pets). A friend pastes it under Import a buddy and your pet visits their desktop.
+- **Naughty mode** (off by default): pets steal a pretend cursor, throw tantrums when ignored and get jealous. Your real mouse is never touched.
+- **Twitch**: a new sub makes the pets evolve (golden, crowned, sparkly) and gift subs bring confetti.
+
+**[⬇ Download the latest release](https://github.com/vallentes/pixelbuddy/releases/latest)** · [How to install](#install) · [Website](https://vallentes.github.io/pixelbuddy/)
+
+<p align="center"><img src="docs/hero.gif" width="760" alt="PixelBuddy pets dancing, juggling and playing air guitar on a taskbar"></p>
+
+<p align="center"><img src="docs/tricks.gif" width="49%" alt="Pets doing tricks"> <img src="docs/friends.gif" width="49%" alt="Waffles asks Mochi to play"></p>
+
+<p align="center"><img src="docs/pets.png" width="640" alt="All 15 pets"></p>
 
 ## Support PixelBuddy
 

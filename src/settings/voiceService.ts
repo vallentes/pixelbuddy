@@ -220,7 +220,17 @@ function notify(event: string, payload: unknown) {
   }
 }
 
-export function speak(text: string, species: string, reqId?: string) {
+/** 16-bit PCM as base64, small enough to send to a pet window that is recording a clip. */
+function pcmBase64(samples: Float32Array): string {
+  const ints = new Int16Array(samples.length);
+  for (let i = 0; i < samples.length; i++) ints[i] = Math.max(-1, Math.min(1, samples[i])) * 32767;
+  const bytes = new Uint8Array(ints.buffer);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+export function speak(text: string, species: string, reqId?: string, capture = false) {
   const t = clean(text);
   if (!t || !tts || pending > 3) {
     if (reqId) notify('voice://failed', { reqId });
@@ -231,6 +241,7 @@ export function speak(text: string, species: string, reqId?: string) {
   queue = queue
     .then(async () => {
       const v = await synth(t, species);
+      if (capture && reqId) notify('voice://audio', { reqId, sr: v.sr, rate: pv.rate, pcm: pcmBase64(v.audio) });
       await play(v.audio, v.sr, pv, (ms) => reqId && notify('voice://started', { reqId, ms }));
     })
     .catch((e) => {
@@ -246,8 +257,8 @@ export function speak(text: string, species: string, reqId?: string) {
 export async function startVoiceService(initial: { mode: string; volume: number }) {
   volume = initial.volume;
   if (initial.mode === 'natural') loadVoices().catch(() => {});
-  await listen<{ text: string; species: string; reqId?: string }>('voice://speak', (e) => {
-    if (tts) speak(e.payload.text, e.payload.species, e.payload.reqId);
+  await listen<{ text: string; species: string; reqId?: string; capture?: boolean }>('voice://speak', (e) => {
+    if (tts) speak(e.payload.text, e.payload.species, e.payload.reqId, e.payload.capture);
     else if (e.payload.reqId) notify('voice://failed', { reqId: e.payload.reqId });
   });
 }

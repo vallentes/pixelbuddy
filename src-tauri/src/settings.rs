@@ -44,6 +44,8 @@ pub struct Settings {
     pub voice_volume: f64,
     pub sound_effects: bool,
     pub user_name: String,
+    /// Harmless mischief: fake cursor theft, tantrums when ignored, jealousy. Off by default.
+    pub naughty_mode: bool,
 }
 
 impl Default for Settings {
@@ -73,8 +75,8 @@ impl Default for Settings {
             overlay_scale: 4.0,
             twitch_client_id: option_env!("PIXELBUDDY_TWITCH_CLIENT_ID").unwrap_or_default().to_string(),
             twitch_follow_action: "happy".into(),
-            twitch_sub_action: "dance".into(),
-            twitch_gift_action: "celebrate".into(),
+            twitch_sub_action: "evolve".into(),
+            twitch_gift_action: "confetti".into(),
             twitch_cheer_action: "feed".into(),
             twitch_raid_action: "celebrate".into(),
             art_style: "hd".into(),
@@ -83,6 +85,7 @@ impl Default for Settings {
             voice_volume: 0.6,
             sound_effects: true,
             user_name: String::new(),
+            naughty_mode: false,
         }
     }
 }

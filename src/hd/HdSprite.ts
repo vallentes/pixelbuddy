@@ -67,6 +67,22 @@ export class HdSprite implements Renderer {
   }
 
   /** Where the eyes look, each component in -1..1. */
+  private evolvedUntil = 0;
+  private auraT = 0;
+  private confettiLeft = 0;
+
+  boost(kind: 'evolve' | 'confetti', ms = 60_000) {
+    if (kind === 'evolve') {
+      this.evolvedUntil = performance.now() + ms;
+      this.particles.burst('sparkle', 16, 0, -60);
+      this.particles.burst('star', 6, 0, -90);
+    } else {
+      this.particles.burst('confetti', 30, 0, -120);
+      this.confettiLeft = 4;
+      this.auraT = 0;
+    }
+  }
+
   setGaze(x: number, y: number) {
     this.gaze = [Math.max(-1, Math.min(1, x)), Math.max(-1, Math.min(1, y))];
   }
@@ -82,6 +98,18 @@ export class HdSprite implements Renderer {
     }
     this.clock += dt;
     const nowMs = performance.now();
+    if (nowMs < this.evolvedUntil || this.confettiLeft > 0) {
+      this.auraT += dt;
+      if (this.auraT > 0.45) {
+        this.auraT = 0;
+        if (this.confettiLeft > 0) {
+          this.confettiLeft--;
+          this.particles.burst('confetti', 22, 0, -120);
+        } else if (this.effects) {
+          this.particles.burst('sparkle', 2, 0, -60);
+        }
+      }
+    }
     const talking = !!this.bubble && nowMs < this.bubble.until && nowMs - this.bubble.start < typeMs(this.bubble.text, this.bubble.charMs) - 50 && this.bubble.text !== '...';
     this.talkT = talking ? this.talkT + dt : 0;
     const target = targetPose(this.state, this.t, this.seed, talking ? this.talkT : null);
@@ -94,9 +122,21 @@ export class HdSprite implements Renderer {
     this.talkT = 0;
   }
 
-  draw(ctx: CanvasRenderingContext2D, cx: number, bottom: number, pixel: number, now = performance.now()) {
+  draw(ctx: CanvasRenderingContext2D, cx: number, bottom: number, basePixel: number, now = performance.now()) {
     this.lastCtx = ctx;
+    const evolved = now < this.evolvedUntil;
+    const pixel = evolved ? basePixel * 1.15 : basePixel;
     const size = 32 * pixel;
+    if (evolved) {
+      // Soft golden glow, faint enough that clicks still pass through it.
+      const r = size * 0.6;
+      const gy = bottom - size * 0.42;
+      const g = ctx.createRadialGradient(cx, gy, 0, cx, gy, r);
+      g.addColorStop(0, 'rgba(255, 214, 90, 0.15)');
+      g.addColorStop(1, 'rgba(255, 214, 90, 0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(cx - r, gy - r, r * 2, r * 2);
+    }
     const u = size / UNITS;
     ctx.save();
     this.lastDraw = { cx, base: bottom - 3 * u, u };

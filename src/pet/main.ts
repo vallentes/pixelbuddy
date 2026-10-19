@@ -3,14 +3,14 @@
 // menu and click-through on transparent pixels.
 
 import { LogicalSize, PhysicalPosition } from '@tauri-apps/api/dpi';
-import { listen } from '@tauri-apps/api/event';
+import { emit, listen } from '@tauri-apps/api/event';
 import { Menu, PredefinedMenuItem, Submenu } from '@tauri-apps/api/menu';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { Brain, type Action } from '../engine/brain';
 import { bubbleMs, idleTopic, nextChatDelayMs, pickJoke, pickLine, type Chattiness, type Topic } from '../engine/chatter';
 import { FrameLoop, pickMonitor, stepFall, stepWalk } from '../engine/motion';
 import { api } from '../shared/api';
-import { createRenderer, type ArtStyle, type BodyPart, type Renderer } from '../shared/renderer';
+import { createRenderer, evolve, type ArtStyle, type BodyPart, type Renderer } from '../shared/renderer';
 import type { MonitorInfo, Pet, Reaction, Settings, SystemState } from '../shared/types';
 import { Voice, type Sfx } from '../shared/voice';
 import { SIZE } from '../sprites/raster';
@@ -18,6 +18,8 @@ import type { PetState } from '../sprites/types';
 import { Social } from './social';
 import { fontsReady } from '../shared/fonts';
 import { plain, typeMs } from '../shared/bubble';
+import { ClipRecorder, clipFormat, type ClipShape } from './recorder';
+import { takeVisitor } from '../shared/buddyCode';
 
 const id = Number(new URLSearchParams(location.search).get('id'));
 const win = getCurrentWindow();
@@ -59,6 +61,12 @@ let lastSave = { x: NaN, y: NaN, at: 0 };
 let nextChatAt = Date.now() + 20_000;
 let prevState: PetState = 'idle';
 let lastTalkAt = 0;
+let clip: ClipRecorder | null = null;
+// Naughty Mode
+let lastAttention = Date.now();
+let nextMischiefAt = Date.now() + 3 * 60_000;
+let fakeCursorUntil = 0;
+let lastJealous = 0;
 
 const loop = new FrameLoop(fps, tick);
 
@@ -328,6 +336,7 @@ function tick(dt: number) {
     social?.tick(now, x, brain.state === 'walk');
     savePosition();
     maybeChat(now);
+    mischief(now);
   }
   void moveWindow();
 
@@ -346,8 +355,91 @@ function pixelSize() {
 }
 
 function draw() {
+  // The clip is drawn first so the desktop canvas is the last thing hit-testing saw.
+  if (clip) clip.frame(sprite);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   sprite.draw(ctx, canvas.width / 2, canvas.height, pixelSize());
+  if (Date.now() < fakeCursorUntil) drawFakeCursor();
+}
+
+/** A drawn arrow pointer held up by the pet. Only a picture: the real pointer never moves. */
+function drawFakeCursor() {
+  const p = pixelSize();
+  const s = 32 * p;
+  const hx = canvas.width / 2 + sprite.facing * s * 0.34;
+  const hy = canvas.height - s * 0.62 + Math.sin(performance.now() / 120) * p;
+  const k = p * 0.9;
+  ctx.save();
+  ctx.translate(hx, hy);
+  ctx.rotate(-0.25 * sprite.facing);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, 17 * k);
+  ctx.lineTo(4 * k, 13 * k);
+  ctx.lineTo(7 * k, 20 * k);
+  ctx.lineTo(10 * k, 19 * k);
+  ctx.lineTo(7 * k, 12 * k);
+  ctx.lineTo(12 * k, 12 * k);
+  ctx.closePath();
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = Math.max(1, k);
+  ctx.lineJoin = 'round';
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ---------------------------------------------------------------------------------------------
+// Naughty Mode: harmless mischief, off by default. Never moves, hides or captures the real mouse.
+// ---------------------------------------------------------------------------------------------
+
+/** The user paid attention to this pet: tells the others (who may get jealous). */
+function noticed() {
+  lastAttention = Date.now();
+  void emit('pet://attention', { id }).catch(() => {});
+}
+
+function mischief(now: number) {
+  if (!settings.naughtyMode || now < nextMischiefAt || clip || social?.busy) return;
+  if (system.idle || hidden || mode !== 'ground' || !['idle', 'walk', 'sit'].includes(brain.state)) return;
+  nextMischiefAt = now + (4 + Math.random() * 6) * 60_000;
+  if (now - lastAttention > 20 * 60_000) {
+    // Ignored for ages: stomp and complain, then wait a while before the next one.
+    lastAttention = now - 10 * 60_000;
+    brain.act('angry', now);
+    voice.sfx('grumble');
+    chat('tantrum');
+    window.setTimeout(() => brain.state === 'idle' && brain.act('angry', Date.now()), 2800);
+  } else if (cursorX !== null) {
+    stealCursor(now);
+  }
+}
+
+function stealCursor(now: number) {
+  fakeCursorUntil = now + 5200;
+  voice.sfx('whoosh');
+  void talk(pickLine('cursorGrab', pet.species, pet.name, settings.userName));
+  const b = bounds();
+  const away = cursorX !== null && cursorX > x ? -1 : 1;
+  brain.lockUntil = now + 4200;
+  brain.goTo(Math.min(b.maxX, Math.max(b.minX, x + away * 320 * sf())), now, 2.4);
+  window.setTimeout(() => {
+    fakeCursorUntil = 0;
+    brain.act('tickle', Date.now());
+    chat('cursorGive');
+  }, 5200);
+}
+
+function onAttentionElsewhere(other: number) {
+  const now = Date.now();
+  if (other === id || !settings.naughtyMode || now - lastJealous < 90_000 || Math.random() > 0.35) return;
+  if (hidden || clip || social?.busy || mode !== 'ground' || brain.state === 'sleep') return;
+  lastJealous = now;
+  window.setTimeout(() => {
+    brain.act('angry', Date.now());
+    chat('jealous');
+  }, 900 + Math.random() * 800);
 }
 
 function canvasPoint(sx: number, sy: number): [number, number] | null {
@@ -444,6 +536,7 @@ function partUnderMouse(e: MouseEvent): BodyPart {
 
 canvas.addEventListener('mousedown', (e) => {
   if (e.button !== 0) return;
+  noticed();
   const part = partUnderMouse(e);
   down = { sx: e.screenX, sy: e.screenY, part, t: Date.now(), consumed: false };
   window.clearTimeout(holdTimer);
@@ -607,6 +700,7 @@ async function endDrag() {
 
 function act(a: Action, topic?: Topic) {
   return () => {
+    noticed();
     social?.stop(true);
     lastLocal = { action: a, at: Date.now() };
     if (a === 'joke') void tellJoke();
@@ -616,6 +710,60 @@ function act(a: Action, topic?: Topic) {
     }
     void api.petAction(id, a).catch(() => {});
   };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Record My Buddy
+// ---------------------------------------------------------------------------------------------
+
+const SHOW_TRICKS: Action[] = ['backflip', 'juggle', 'magic', 'karate', 'shades', 'airguitar', 'bubblegum', 'yoyo', 'flex', 'cartwheel'];
+
+/** Films a short show (hello, tricks, a joke) into a video file. Only the pet is recorded. */
+async function recordClip(shape: ClipShape) {
+  if (clip) return;
+  const format = clipFormat();
+  if (!format) {
+    void talk('My camera does not work on this computer. Sorry!');
+    return;
+  }
+  social.stop(true);
+  const recorder = new ClipRecorder(shape, pet.name, voice.recordTrack(true), format);
+  clip = recorder;
+  nextChatAt = Date.now() + 60_000;
+  const deadline = Date.now() + 24_000;
+  const live = () => clip === recorder && Date.now() < deadline;
+  const tricks = [...SHOW_TRICKS].sort(() => Math.random() - 0.5);
+  try {
+    await wait(500);
+    brain.act('wave', Date.now());
+    const d = await talk(`Hi! I'm *${pet.name}*!`);
+    await wait(Math.max(1200, d + 600));
+    if (live()) {
+      brain.act(tricks[0], Date.now());
+      await wait(3200);
+    }
+    if (live()) {
+      await tellJoke();
+      await wait(1600);
+    }
+    if (live()) {
+      brain.act(tricks[1], Date.now());
+      await wait(3000);
+    }
+  } finally {
+    recorder.stop();
+    voice.recordTrack(false);
+    if (clip === recorder) clip = null;
+  }
+  try {
+    const blob = await recorder.done;
+    await api.saveClip(new Uint8Array(await blob.arrayBuffer()), format.ext);
+    voice.sfx('shutter');
+    void talk('Saved! Now go make me *famous*!');
+  } catch (e) {
+    console.error('saving clip failed', e);
+    void talk('Oops, I could not save the video.');
+  }
 }
 
 async function showMenu() {
@@ -655,6 +803,14 @@ async function showMenu() {
       ] as [Action, string][]
     ).map(([a, text]) => ({ id: a, text, action: act(a) })),
   });
+  const recordMenu = await Submenu.new({
+    text: 'Record a clip',
+    enabled: !clip,
+    items: [
+      { id: 'rec-portrait', text: 'Portrait (TikTok, Shorts, Reels)', action: () => void recordClip('portrait') },
+      { id: 'rec-landscape', text: 'Landscape (YouTube, X)', action: () => void recordClip('landscape') },
+    ],
+  });
   const menu = await Menu.new({
     items: [
       { id: 'feed', text: `Feed ${pet.name}`, action: act('feed', 'feed') },
@@ -662,8 +818,10 @@ async function showMenu() {
       { id: 'dance', text: 'Dance', action: act('dance', 'dance') },
       fun,
       trickMenu,
+      recordMenu,
       { id: 'sleep', text: sleeping ? 'Wake up' : 'Take a nap', action: act(sleeping ? 'wake' : 'sleep', sleeping ? 'welcomeBack' : 'tired') },
       await PredefinedMenuItem.new({ item: 'Separator' }),
+      { id: 'share', text: 'Share my buddy code...', action: () => void api.showSettings('pets') },
       { id: 'hide', text: `Hide ${pet.name}`, action: () => void api.updatePet(id, { visible: false }) },
       { id: 'settings', text: 'Settings...', action: () => void api.showSettings('pets') },
     ],
@@ -725,6 +883,13 @@ async function listenAll() {
     const own = r.source === 'user' && r.petId === id;
     if (own && r.action === lastLocal.action && Date.now() - lastLocal.at < 2500) return;
     if (r.action !== 'joke') brain.act(r.action as Action, Date.now());
+    if (r.action === 'evolve') {
+      evolve(sprite, () => [pet.species, pet.color, pet.accessory]);
+      voice.sfx('sparkle');
+    } else if (r.action === 'confetti') {
+      sprite.boost('confetti');
+      voice.sfx('pop');
+    }
     if (r.label) {
       talk(r.label);
     } else if (!own && REACTION_TOPIC[r.action]) {
@@ -766,6 +931,7 @@ async function listenAll() {
     applyVisibility();
     draw();
   });
+  await listen<{ id: number }>('pet://attention', (e) => onAttentionElsewhere(e.payload.id));
   await listen('update://available', () => {
     window.setTimeout(() => chat('update', id % 2 === 1 ? 1 : 0), 4000);
   });
@@ -803,7 +969,7 @@ async function boot() {
       y,
       monitor: mon?.name ?? '',
       state: brain.state,
-      busy: social.busy || mode !== 'ground' || hidden,
+      busy: social.busy || mode !== 'ground' || hidden || !!clip,
       at: Date.now(),
     }),
     sf,
@@ -838,6 +1004,11 @@ async function boot() {
   applyVisibility();
   window.setTimeout(() => {
     brain.act('wave', Date.now());
+    const visitor = takeVisitor(id);
+    if (visitor !== null) {
+      void talk(`I came all the way from *${visitor}*'s desktop! Nice place!`);
+      return;
+    }
     const hour = new Date().getHours();
     chat(hour >= 6 && hour < 10 ? 'morning' : 'greet');
   }, 1200 + Math.random() * 1500);

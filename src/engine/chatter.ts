@@ -66,7 +66,11 @@ export type Topic =
   | 'tiptoe'
   | 'yoyo'
   | 'selfie'
-  | 'update';
+  | 'update'
+  | 'cursorGrab'
+  | 'cursorGive'
+  | 'tantrum'
+  | 'jealous';
 
 export type Chattiness = 'off' | 'rare' | 'normal' | 'chatty';
 

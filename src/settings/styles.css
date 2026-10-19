@@ -148,3 +148,8 @@ input[type='range'] { width: 180px; accent-color: var(--accent); }
 .status-bad { color: var(--bad); font-weight: 700; }
 .stack { display: flex; flex-direction: column; gap: 10px; }
 .toast { position: fixed; bottom: 18px; right: 18px; z-index: 60; }
+
+.share-code { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.share-code code { font: 600 14px ui-monospace, Consolas, monospace; padding: 6px 10px; background: var(--bg); border: 2px dashed var(--accent); border-radius: 8px; user-select: all; word-break: break-all; }
+.import-buddy { margin-top: 16px; }
+.import-buddy h2 { margin: 0 0 4px; }

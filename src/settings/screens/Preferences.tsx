@@ -187,6 +187,14 @@ export function PersonalityScreen() {
           />
         </Row>
       </Card>
+      <Card title="Mischief">
+        <Row
+          label="Naughty mode"
+          hint="Pets steal a pretend copy of your cursor and run off with it, throw tantrums when ignored too long and get jealous when you pet someone else. Your real mouse is never touched."
+        >
+          <Toggle label="Naughty mode" on={s.naughtyMode} onChange={(v) => updateSettings({ naughtyMode: v })} />
+        </Row>
+      </Card>
       <Card title="Voice and sounds">
         <Row
           label="Voice"

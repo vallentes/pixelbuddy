@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PixelBuddy · Free desktop pets that talk, joke and cause chaos</title>
+<meta name="description" content="15 little creatures that live on your desktop. They walk around, talk, tell jokes, do tricks and annoy each other. Free for Windows and macOS. No ads, no tracking.">
+<meta property="og:title" content="PixelBuddy · Free desktop pets">
+<meta property="og:description" content="15 little creatures that live on your desktop. Free forever. No ads. No tracking.">
+<meta property="og:image" content="https://vallentes.github.io/pixelbuddy/social-card.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.png">
+<style>
+@font-face { font-family: Fredoka; font-weight: 500; src: url(fonts/fredoka-latin-500-normal.woff2) format('woff2'); font-display: swap; }
+@font-face { font-family: Fredoka; font-weight: 600; src: url(fonts/fredoka-latin-600-normal.woff2) format('woff2'); font-display: swap; }
+@font-face { font-family: Fredoka; font-weight: 700; src: url(fonts/fredoka-latin-700-normal.woff2) format('woff2'); font-display: swap; }
+:root {
+  --bg: #fff8ee; --ink: #2a2240; --muted: #6b6185; --card: #ffffff; --line: #2a2240;
+  --yellow: #ffcf4a; --pink: #ff5c8a; --blue: #2457d6; --green: #3fbf7f;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 500 17px/1.55 Fredoka, system-ui, sans-serif; }
+a { color: var(--blue); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 22px; text-decoration: none; color: var(--ink); }
+.logo img { width: 40px; height: 40px; border-radius: 10px; }
+nav a { margin-left: 18px; color: var(--ink); text-decoration: none; font-weight: 600; }
+.hero { text-align: center; padding: 30px 0 10px; }
+.hero h1 { font-size: clamp(34px, 6vw, 60px); line-height: 1.05; margin: 0 0 14px; font-weight: 700; }
+.hero h1 em { font-style: normal; color: var(--pink); }
+.hero p.sub { font-size: clamp(17px, 2.2vw, 21px); color: var(--muted); margin: 0 auto 26px; max-width: 640px; }
+.btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border: 3px solid var(--line); border-radius: 16px;
+  background: var(--yellow); color: var(--ink); font: 700 18px Fredoka, sans-serif; text-decoration: none; box-shadow: 0 5px 0 var(--line); transition: transform .08s, box-shadow .08s; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--line); }
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--line); }
+.btn.alt { background: #fff; }
+.btn small { font-weight: 500; font-size: 13px; color: var(--muted); display: block; }
+.badges { margin-top: 14px; color: var(--muted); font-size: 14px; }
+.shot { margin: 34px auto 0; max-width: 820px; border: 3px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 0 var(--line); background: #1b2b6b; }
+.shot img { display: block; width: 100%; height: auto; }
+section { padding: 60px 0 10px; }
+h2 { font-size: clamp(26px, 4vw, 38px); margin: 0 0 8px; text-align: center; }
+.lead { text-align: center; color: var(--muted); margin: 0 auto 30px; max-width: 620px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.card { background: var(--card); border: 3px solid var(--line); border-radius: 18px; padding: 20px; box-shadow: 0 5px 0 var(--line); }
+.card .emoji { font-size: 30px; }
+.card h3 { margin: 6px 0 4px; font-size: 20px; }
+.card p { margin: 0; color: var(--muted); font-size: 15.5px; }
+.pets img, .wide img { display: block; width: 100%; height: auto; border-radius: 14px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: center; }
+@media (max-width: 760px) { .two { grid-template-columns: 1fr; } nav { display: none; } }
+.faq details { background: #fff; border: 3px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 12px; }
+.faq summary { font-weight: 700; cursor: pointer; }
+.faq p { color: var(--muted); margin: 10px 0 0; }
+.support { text-align: center; }
+.support .row { display: flex; gap: 22px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+.support .qr { background: #fff; border: 3px solid var(--line); border-radius: 16px; padding: 12px; }
+.support .qr img { width: 150px; height: 150px; display: block; }
+footer { padding: 50px 0 40px; text-align: center; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="#"><img src="icon.png" alt="">PixelBuddy</a>
+    <nav><a href="#features">Features</a><a href="#pets">Pets</a><a href="#faq">FAQ</a><a href="#support">Support</a></nav>
+  </header>
+
+  <div class="hero">
+    <h1>Little creatures that live<br>on your <em>desktop</em>.</h1>
+    <p class="sub">They walk around, talk, tell jokes, do tricks, annoy each other and occasionally cause absolute chaos. Free forever. No ads, no tracking.</p>
+    <div class="btns">
+      <a class="btn" id="dl-win" href="https://github.com/vallentes/pixelbuddy/releases/latest">⬇ Windows <small id="ver-win">10 / 11</small></a>
+      <a class="btn alt" id="dl-mac" href="https://github.com/vallentes/pixelbuddy/releases/latest">⬇ macOS <small>Apple Silicon &amp; Intel</small></a>
+    </div>
+    <div class="badges" id="ver">Free · Updates itself · 15 pets · Windows &amp; macOS</div>
+    <div class="shot"><img src="hero.gif" alt="Six PixelBuddy pets dancing, juggling and playing air guitar on a desktop taskbar" width="760" height="250"></div>
+  </div>
+
+  <section id="features">
+    <h2>Way more than a screensaver</h2>
+    <p class="lead">Every pet has a personality, a voice and a terrible sense of humor.</p>
+    <div class="grid">
+      <div class="card"><div class="emoji">💬</div><h3>They talk</h3><p>Natural voices that run offline on your PC. Jokes with real comic timing, fun facts, gentle roasts.</p></div>
+      <div class="card"><div class="emoji">🤸</div><h3>19 tricks</h3><p>Backflips, moonwalks, juggling, magic vanishing, karate, bubblegum, selfies and "deal with it" shades.</p></div>
+      <div class="card"><div class="emoji">👆</div><h3>Poke them</h3><p>Boop the nose, tickle the belly, pull the tail, give hugs, or throw them across the screen.</p></div>
+      <div class="card"><div class="emoji">🐾</div><h3>Pet friends</h3><p>Adopt up to 12. They chat, play tag, prank each other, hold joke-offs and dance-offs.</p></div>
+      <div class="card"><div class="emoji">🎮</div><h3>Made for streams</h3><p>Transparent OBS overlay. Twitch follows, cheers, raids and channel points make pets react. Subs make them evolve, gift subs rain confetti.</p></div>
+      <div class="card"><div class="emoji">🎬</div><h3>Record a clip</h3><p>One click films your pet doing a little show, ready for TikTok, Shorts or Reels. Only the pet is filmed, never your screen.</p></div>
+      <div class="card"><div class="emoji">💌</div><h3>Buddy codes</h3><p>Share your pet as a short code. Your friend pastes it and your buddy pops up on their desktop for a visit.</p></div>
+      <div class="card"><div class="emoji">😈</div><h3>Naughty mode</h3><p>Optional chaos: they steal a pretend cursor, sulk when ignored and get jealous of each other.</p></div>
+      <div class="card"><div class="emoji">🪶</div><h3>Light and polite</h3><p>Pauses during fullscreen games, naps when you're away, never touches your real mouse or files.</p></div>
+    </div>
+  </section>
+
+  <section id="pets" class="pets">
+    <h2>Meet the gang</h2>
+    <p class="lead">15 originals in smooth HD or crisp pixel art, each with 6 colors and accessories.</p>
+    <div class="card"><img src="pets.png" alt="All 15 PixelBuddy pets waving: Mochi, Pip, Ember, Bolt, Nimbus, Pickles, Clover, Waffles, Hoot, Biscuit, Zib, Boo, Shelly, Inky and Bao" loading="lazy"></div>
+  </section>
+
+  <section class="wide">
+    <div class="two">
+      <div class="card"><img src="tricks.gif" alt="Pets doing a backflip, sunglasses, yo-yo, karate, bubblegum and air guitar" loading="lazy"></div>
+      <div><h2 style="text-align:left">Show-offs, every one of them</h2><p>Right-click any pet for food, games and tricks, or just wait. They get bored, and that's when things get interesting.</p></div>
+    </div>
+  </section>
+  <section class="wide">
+    <div class="two">
+      <div><h2 style="text-align:left">They have opinions about each other</h2><p>The puppy desperately wants to play. The cat would rather not. The dragon insists it's terrifying. You'll pick favorites.</p></div>
+      <div class="card"><img src="friends.gif" alt="Waffles the puppy asks Mochi the cat to play; Mochi says no" loading="lazy"></div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <h2>Questions</h2>
+    <p class="lead">&nbsp;</p>
+    <details><summary>Is it really free?</summary><p>Yes. No trial, no ads, no subscriptions, no tracking. If it makes you smile you can buy me a coffee, but you never have to.</p></details>
+    <details><summary>Windows says "Windows protected your PC"</summary><p>The installer isn't code-signed yet (certificates are expensive). Click <b>More info → Run anyway</b>. The source is public on GitHub.</p></details>
+    <details><summary>How do I open it on a Mac?</summary><p>Drag PixelBuddy to Applications, then right-click it and choose <b>Open</b> the first time. On macOS 15+, use <b>System Settings → Privacy &amp; Security → Open Anyway</b>.</p></details>
+    <details><summary>Does it slow down my computer?</summary><p>No. Pets pause during fullscreen games and videos, slow down while you're away, and there's a performance mode for older laptops.</p></details>
+    <details><summary>Does it update itself?</summary><p>Yes, from version 1.2 on. It checks for new versions and asks before installing.</p></details>
+    <details><summary>Is it open source?</summary><p>The code is public to read on GitHub, but it's free software, not open source: all rights are reserved.</p></details>
+  </section>
+
+  <section id="support" class="support">
+    <h2>Support PixelBuddy</h2>
+    <p class="lead">I turn coffee into code. Sometimes the code even works.</p>
+    <div class="row">
+      <a class="btn" href="https://buymeacoffee.com/vallentes">☕ Buy me a coffee</a>
+      <a class="qr" href="https://revolut.me/vallentes" title="revolut.me/vallentes"><img src="revolut-qr.svg" alt="QR code for revolut.me/vallentes"></a>
+      <div style="text-align:left"><b>Revolut</b><br><a href="https://revolut.me/vallentes">revolut.me/vallentes</a><br><span style="color:var(--muted);font-size:14px">Card, Apple Pay or Revolut.<br>No account needed.</span></div>
+    </div>
+    <p style="margin-top:24px">A ⭐ on <a href="https://github.com/vallentes/pixelbuddy">GitHub</a> helps a lot too.</p>
+  </section>
+
+  <footer>PixelBuddy by <a href="https://github.com/vallentes">Vallentes</a> · All pets and art are original · <a href="https://github.com/vallentes/pixelbuddy">GitHub</a></footer>
+</div>
+<script>
+// Point the download buttons straight at the newest installers.
+fetch('https://api.github.com/repos/vallentes/pixelbuddy/releases/latest')
+  .then((r) => (r.ok ? r.json() : null))
+  .then((rel) => {
+    if (!rel) return;
+    const find = (re) => rel.assets.find((a) => re.test(a.name));
+    const win = find(/-setup\.exe$/);
+    const mac = find(/\.dmg$/);
+    if (win) document.getElementById('dl-win').href = win.browser_download_url;
+    if (mac) document.getElementById('dl-mac').href = mac.browser_download_url;
+    document.getElementById('ver').textContent = `Version ${rel.tag_name.replace(/^v/, '')} · Free · Updates itself · Windows & macOS`;
+  })
+  .catch(() => {});
+</script>
+</body>
+</html>

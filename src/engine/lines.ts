@@ -182,6 +182,33 @@ export const EXTRA_SHARED: Record<string, string[]> = {
   cartwheel: ['*Wheee!* Cartwheel!', 'Gymnastics *gold* medal!', 'I am *very* bendy.'],
   tiptoe: ['*Shhh*. I am sneaking.', 'You did not see me. *Nobody* saw me.', 'Ninja *mode*.'],
   yoyo: ['Walk the *dog*!', 'Up... down... *up*!', 'I am a yo-yo *professional*.'],
+  cursorGrab: [
+    'Ooh, *shiny* cursor! Mine now!',
+    'Yoink! Your cursor is *mine*!',
+    'Finders keepers!',
+    'I am borrowing this. *Forever.*',
+    'Catch me if you can, {user}!',
+  ],
+  cursorGive: [
+    'Fine, fine, here. It was a *copy* anyway.',
+    'Just kidding! Yours is still there. *Probably.*',
+    'Okay I got bored. You can have it back.',
+    'It did not even taste good.',
+  ],
+  tantrum: [
+    'HELLO?! I am *right here*!',
+    'Nobody pays attention to me! *Nobody!*',
+    'I have been cute for *hours* and NOTHING!',
+    'Fine! I will just stand here. Being ignored. *Again.*',
+    'Pet me or I start *screaming*. Well, more.',
+  ],
+  jealous: [
+    'Hey! What about *me*?!',
+    'Oh sure, pet *them*. I see how it is.',
+    'I was here *first*!',
+    'Excuse me, I am *also* adorable!',
+    'Unbelievable. *Un-be-lievable.*',
+  ],
   update: [
     'Psst! A *new version* of me is out! Check the tray.',
     'I got an *upgrade*! Well, I will once you click update.',
