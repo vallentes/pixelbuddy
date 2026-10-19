@@ -7,6 +7,7 @@ pub struct TrayHandles {
     show: CheckMenuItem<Wry>,
     pause: CheckMenuItem<Wry>,
     update: MenuItem<Wry>,
+    peek: CheckMenuItem<Wry>,
 }
 
 pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
@@ -22,6 +23,8 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
     let streaming = MenuItem::with_id(app, "streaming", "Streaming and overlay...", true, None::<&str>)?;
     let update = MenuItem::with_id(app, "update", "Check for updates", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit PixelBuddy", true, None::<&str>)?;
+    let peek = CheckMenuItem::with_id(app, "no_peek", "Don't peek for an hour", settings.activity_awareness, crate::activity::paused(), None::<&str>)?;
+    let focus = MenuItem::with_id(app, "focus", "Focus for 25 minutes", true, None::<&str>)?;
     let menu = Menu::with_items(
         app,
         &[
@@ -29,6 +32,8 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
             &feed,
             &play,
             &pause,
+            &focus,
+            &peek,
             &PredefinedMenuItem::separator(app)?,
             &settings_item,
             &streaming,
@@ -53,6 +58,17 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
             "pause" => {
                 let paused = !state(app).settings.read().unwrap().animations_paused;
                 commands::apply_settings_patch(app, serde_json::json!({ "animationsPaused": paused }));
+            }
+            "no_peek" => {
+                if crate::activity::paused() {
+                    crate::activity::resume();
+                } else {
+                    crate::activity::pause_for(60);
+                }
+                refresh(app);
+            }
+            "focus" => {
+                let _ = app.emit("focus://start", serde_json::json!({ "minutes": 25 }));
             }
             "feed_all" => commands::perform_action(app, None, "feed", "user", None),
             "play_all" => commands::perform_action(app, None, "play", "user", None),
@@ -88,7 +104,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
         })
         .build(app)?;
 
-    Ok(TrayHandles { show, pause, update })
+    Ok(TrayHandles { show, pause, update, peek })
 }
 
 pub fn refresh(app: &AppHandle) {
@@ -103,4 +119,6 @@ pub fn refresh(app: &AppHandle) {
         None => "Check for updates".to_string(),
     };
     let _ = t.update.set_text(label);
+    let _ = t.peek.set_enabled(s.activity_awareness);
+    let _ = t.peek.set_checked(crate::activity::paused());
 }

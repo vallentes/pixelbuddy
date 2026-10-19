@@ -20,6 +20,8 @@ import { fontsReady } from '../shared/fonts';
 import { plain, typeMs } from '../shared/bubble';
 import { ClipRecorder, clipFormat, type ClipShape } from './recorder';
 import { takeVisitor } from '../shared/buddyCode';
+import { Awareness } from './awareness';
+import { pickAware } from '../engine/lines4';
 
 const id = Number(new URLSearchParams(location.search).get('id'));
 const win = getCurrentWindow();
@@ -62,6 +64,11 @@ let nextChatAt = Date.now() + 20_000;
 let prevState: PetState = 'idle';
 let lastTalkAt = 0;
 let clip: ClipRecorder | null = null;
+let awareness: Awareness | null = null;
+// Riding on top of the active window ("Climb on windows").
+let perched = false;
+let lastWinX: number | null = null;
+let nextClimbAt = Date.now() + 60_000;
 // Naughty Mode
 let lastAttention = Date.now();
 let nextMischiefAt = Date.now() + 3 * 60_000;
@@ -89,11 +96,71 @@ function sf() {
 function bounds() {
   const spritePx = SIZE * settings.scale * sf();
   const slack = (winW - spritePx) / 2;
+  const ground = mon.workY + mon.workHeight - winH;
+  const top = perchTop();
+  // Land on the window only when coming from above it (or already riding it).
+  if (top !== null && perched) {
+    // Riding a window: walk only along its top edge.
+    const [wx, , ww] = awareness!.activity.window!;
+    const m = 28 * sf();
+    return { minX: wx + m - winW / 2, maxX: wx + ww - m - winW / 2, floorY: top };
+  }
+  // Falling from above lands on the window; from below it is ignored.
+  const floorY = top !== null && y <= top + 4 * sf() ? top : ground;
   return {
     minX: mon.workX - slack,
     maxX: mon.workX + mon.workWidth - winW + slack,
-    floorY: mon.workY + mon.workHeight - winH,
+    floorY,
   };
+}
+
+/** Window top the pet could stand on (window y for this pet window), or null. */
+function perchTop(): number | null {
+  const w = awareness?.activity.window;
+  if (!settings.perchWindows || !w || !mon) return null;
+  const [wx, wy, ww] = w;
+  const feet = x + winW / 2;
+  const m = 24 * sf();
+  if (feet < wx + m || feet > wx + ww - m) return null;
+  const ground = mon.workY + mon.workHeight - winH;
+  const top = wy - winH + 3 * sf();
+  if (wy < mon.workY + 60 * sf() || top >= ground - 40 * sf()) return null;
+  return top;
+}
+
+/** Jump up onto the active window, or hop back down, now and then. */
+function climbTick(now: number) {
+  if (now < nextClimbAt || !settings.perchWindows || !settings.gravity) return;
+  nextClimbAt = now + 25_000 + Math.random() * 50_000;
+  if (mode !== 'ground' || social?.busy || clip || !['idle', 'walk', 'sit'].includes(brain.state)) return;
+  const w = awareness?.activity.window;
+  if (perched) {
+    if (Math.random() < 0.35 && w) {
+      // Hop off the nearest edge.
+      const [wx, , ww] = w;
+      const left = x + winW / 2 - wx < wx + ww - (x + winW / 2);
+      perched = false;
+      fall.y = y;
+      fall.from = y;
+      fall.vy = -500 * sf();
+      fall.vx = (left ? -1 : 1) * 260 * sf();
+      x = left ? wx - winW / 2 - 10 * sf() : wx + ww - winW / 2 + 10 * sf();
+      mode = 'falling';
+      brain.startFall();
+    }
+    return;
+  }
+  const top = perchTop();
+  if (top === null || Math.random() > 0.4) return;
+  const h = y - top + 40 * sf();
+  fall.y = y;
+  fall.from = y;
+  fall.vx = 0;
+  fall.vy = -Math.sqrt(2 * 2600 * sf() * h);
+  mode = 'falling';
+  brain.startFall();
+  voice.sfx('boing');
+  if (Math.random() < 0.5) void talk(pickAware('climb', { user: settings.userName }));
 }
 
 function walkSpeed() {
@@ -159,6 +226,7 @@ let talkToken = 0;
 /** Returns how long the line takes to say/type (ms), or -1 if a newer line replaced it. */
 async function talk(text: string, opts: { voice?: boolean } = {}): Promise<number> {
   lastTalkAt = Date.now();
+  if (awareness?.quiet()) opts = { ...opts, voice: false };
   const letters = Math.max(1, plain(text).length);
   if (opts.voice === false || settings.voiceMode === 'off' || settings.voiceVolume <= 0) {
     if (opts.voice !== false) talkToken++;
@@ -195,6 +263,7 @@ async function tellJoke() {
 }
 
 function chat(topic: Topic, chance = 1) {
+  if (awareness?.quiet()) return;
   if (topic === 'joke') {
     if (Math.random() <= chance) void tellJoke();
     return;
@@ -281,7 +350,7 @@ function doLocal(a: Action, topic?: Topic) {
 function maybeChat(now: number) {
   if (now < nextChatAt) return;
   nextChatAt = now + nextChatDelayMs(settings.chattiness as Chattiness);
-  if (social?.busy) return;
+  if (social?.busy || awareness?.calm()) return;
   if (system.idle || hidden || mode !== 'ground' || !['idle', 'walk', 'sit'].includes(brain.state)) return;
   chat(idleTopic(pet, new Date()));
 }
@@ -292,6 +361,11 @@ function maybeChat(now: number) {
 
 function tick(dt: number) {
   const now = Date.now();
+  // Riding a window: move along when it is dragged sideways.
+  const w = awareness?.activity.window;
+  if (perched && w && lastWinX !== null && w[0] !== lastWinX && mode === 'ground') x += w[0] - lastWinX;
+  lastWinX = w ? w[0] : null;
+  if (perched && !w) perched = false;
   if (mode === 'falling') {
     const b = bounds();
     const landed = stepFall(fall, b.floorY, dt, 2600 * sf());
@@ -313,6 +387,7 @@ function tick(dt: number) {
     }
     if (landed) {
       mode = 'ground';
+      perched = b.floorY < mon.workY + mon.workHeight - winH - 1;
       fall.vx = 0;
       brain.landed(now);
       const drop = (b.floorY - fall.from) / sf();
@@ -332,7 +407,21 @@ function tick(dt: number) {
       cursorX: settings.mouseInteraction ? cursorX : null,
     });
     if (vx) x = stepWalk(x, vx, dt, b.minX, b.maxX);
-    if (mode === 'ground' && settings.gravity) y = b.floorY;
+    if (mode === 'ground' && settings.gravity) {
+      if (b.floorY > y + 2 * sf()) {
+        // The window under us moved down, closed or we walked off it: fall.
+        perched = false;
+        fall.y = y;
+        fall.from = y;
+        fall.vy = 0;
+        fall.vx = 0;
+        mode = 'falling';
+        brain.startFall();
+      } else {
+        y = b.floorY;
+      }
+    }
+    climbTick(now);
     social?.tick(now, x, brain.state === 'walk');
     savePosition();
     maybeChat(now);
@@ -401,7 +490,7 @@ function noticed() {
 }
 
 function mischief(now: number) {
-  if (!settings.naughtyMode || now < nextMischiefAt || clip || social?.busy) return;
+  if (!settings.naughtyMode || now < nextMischiefAt || clip || social?.busy || awareness?.calm() || perched) return;
   if (system.idle || hidden || mode !== 'ground' || !['idle', 'walk', 'sit'].includes(brain.state)) return;
   nextMischiefAt = now + (4 + Math.random() * 6) * 60_000;
   if (now - lastAttention > 20 * 60_000) {
@@ -803,6 +892,16 @@ async function showMenu() {
       ] as [Action, string][]
     ).map(([a, text]) => ({ id: a, text, action: act(a) })),
   });
+  const focusing = awareness?.focusing() ?? false;
+  const focusMenu = await Submenu.new({
+    text: focusing ? 'Focus timer (on)' : 'Focus timer',
+    items: focusing
+      ? [{ id: 'focus-stop', text: 'Stop focusing', action: () => void emit('focus://stop', {}) }]
+      : [
+          { id: 'focus-25', text: '25 minutes', action: () => void emit('focus://start', { minutes: 25 }) },
+          { id: 'focus-50', text: '50 minutes', action: () => void emit('focus://start', { minutes: 50 }) },
+        ],
+  });
   const recordMenu = await Submenu.new({
     text: 'Record a clip',
     enabled: !clip,
@@ -819,6 +918,7 @@ async function showMenu() {
       fun,
       trickMenu,
       recordMenu,
+      focusMenu,
       { id: 'sleep', text: sleeping ? 'Wake up' : 'Take a nap', action: act(sleeping ? 'wake' : 'sleep', sleeping ? 'welcomeBack' : 'tired') },
       await PredefinedMenuItem.new({ item: 'Separator' }),
       { id: 'share', text: 'Share my buddy code...', action: () => void api.showSettings('pets') },
@@ -954,7 +1054,7 @@ async function boot() {
   makeRenderer();
   voice = new Voice(pet.species, () => ({
     mode: settings.voiceMode,
-    volume: settings.voiceVolume,
+    volume: awareness?.quiet() ? 0 : settings.voiceVolume,
     sfx: settings.soundEffects,
   }));
   brain = new Brain(walkSpeed());
@@ -979,7 +1079,7 @@ async function boot() {
     act: (a) => brain.act(a, Date.now()),
     chattiness: () => settings.chattiness,
     // They keep playing while you are away from the keyboard, too.
-    canSocialize: () => !hidden && mode === 'ground' && !settings.animationsPaused && !clip,
+    canSocialize: () => !hidden && mode === 'ground' && !settings.animationsPaused && !clip && !perched && !awareness?.calm(),
     ignoredMs: () => Date.now() - lastAttention,
     sfx: (k) => voice.sfx(k),
   });
@@ -1000,6 +1100,17 @@ async function boot() {
   await moveWindow();
   await listenAll();
   await social.start();
+  awareness = new Awareness({
+    id,
+    say: (t, o) => void talk(t, o),
+    act: (a) => brain.act(a, Date.now()),
+    state: () => brain.state,
+    settings: () => settings,
+    system: () => system,
+    isSpeaker: () => !hidden && [...social.others.keys()].every((other) => other > id),
+    canReact: () => !hidden && !clip && mode === 'ground' && !social.busy,
+  });
+  await awareness.start();
   draw();
   await setIgnore(settings.clickThrough);
   hidden = true;

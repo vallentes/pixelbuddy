@@ -1,0 +1,28 @@
+name: check
+
+# Compiles and tests on Windows and macOS for every push to main, so platform-specific code
+# (like the macOS active-app lookup) is checked before a release is tagged.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: cargo test --workspace

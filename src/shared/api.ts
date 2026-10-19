@@ -31,6 +31,8 @@ export const api = {
   installUpdate: () => invoke<void>('install_update'),
   /** Saves a recorded clip to the Videos folder and returns its path. */
   saveClip: (bytes: Uint8Array, ext: 'mp4' | 'webm') => invoke<string>('save_clip', bytes, { headers: { 'x-pb-ext': ext } }),
+  pauseActivity: (minutes: number) => invoke<void>('pause_activity', { minutes }),
+  activityPaused: () => invoke<boolean>('activity_paused'),
   openSupportLink: (kind: 'coffee' | 'revolut' = 'coffee') => invoke<void>('open_support_link', { kind }),
 
   overlayStatus: () => invoke<OverlayStatus>('overlay_status'),

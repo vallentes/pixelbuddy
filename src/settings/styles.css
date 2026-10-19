@@ -153,3 +153,7 @@ input[type='range'] { width: 180px; accent-color: var(--accent); }
 .share-code code { font: 600 14px ui-monospace, Consolas, monospace; padding: 6px 10px; background: var(--bg); border: 2px dashed var(--accent); border-radius: 8px; user-select: all; word-break: break-all; }
 .import-buddy { margin-top: 16px; }
 .import-buddy h2 { margin: 0 0 4px; }
+
+.consent { border: 2px solid var(--accent); border-radius: 12px; padding: 12px 14px; margin: 8px 0; background: var(--bg); }
+.disclosure { margin: 8px 0; padding-left: 18px; line-height: 1.5; }
+.disclosure li { margin-bottom: 4px; }

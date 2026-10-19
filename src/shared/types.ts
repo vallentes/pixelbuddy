@@ -36,6 +36,13 @@ export interface Settings {
   soundEffects: boolean;
   userName: string;
   naughtyMode: boolean;
+  activityAwareness: boolean;
+  activitySongNames: boolean;
+  activityIgnore: string[];
+  meetingMode: boolean;
+  perchWindows: boolean;
+  breakReminders: boolean;
+  waterReminders: boolean;
 }
 
 export interface Pet {
@@ -54,6 +61,33 @@ export interface Pet {
   createdAt: number;
   lastFedAt: number | null;
   lastPlayedAt: number | null;
+}
+
+export type ActivityKind =
+  | 'off'
+  | 'paused'
+  | 'private'
+  | 'video'
+  | 'music'
+  | 'meeting'
+  | 'chat'
+  | 'mail'
+  | 'code'
+  | 'game'
+  | 'social'
+  | 'shopping'
+  | 'docs'
+  | 'browse'
+  | 'other';
+
+/** What the user is doing, as a category only (see src-tauri/src/activity.rs). */
+export interface Activity {
+  kind: ActivityKind;
+  label: string | null;
+  detail: string | null;
+  typing: number;
+  /** Active window x, y, width, height in physical px (only with "Climb on windows"). */
+  window: [number, number, number, number] | null;
 }
 
 export interface SystemState {

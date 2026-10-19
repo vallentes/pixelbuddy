@@ -1,3 +1,4 @@
+pub mod activity;
 pub mod commands;
 pub mod db;
 pub mod overlay;
@@ -81,6 +82,7 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     st.twitch.init(app);
 
     spawn_system_monitor(app.clone());
+    activity::spawn(app.clone());
     spawn_needs_tick(app.clone());
     updater::spawn_checks(app.clone());
     Ok(())
@@ -210,6 +212,8 @@ pub fn run() {
             commands::show_settings,
             commands::open_data_folder,
             commands::save_clip,
+            commands::pause_activity,
+            commands::activity_paused,
             commands::quit_app,
             voice_model::voice_model_ready,
             voice_model::voice_model_download,

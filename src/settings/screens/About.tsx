@@ -21,7 +21,8 @@ export function AboutScreen() {
         <p className="muted" style={{ marginTop: 0 }}>
           Your pets and settings are stored only on this computer. PixelBuddy does not collect any data. It only goes online to
           check GitHub for new versions, download the free voice model (once, if you turn on natural voices) and to talk to Twitch
-          if you connect it.
+          if you connect it. If you turn on "React to what I'm doing", the name of the app in front is checked on this computer
+          and immediately forgotten; it is never saved or sent anywhere. Full details: PRIVACY.md on GitHub.
         </p>
         <Row label="Data folder" hint="SQLite database with your pets and settings.">
           <button className="btn small secondary" onClick={() => api.openDataFolder()}>Open</button>

@@ -417,6 +417,22 @@ pub fn save_clip(app: AppHandle, request: tauri::ipc::Request<'_>) -> CmdResult<
     Ok(path.to_string_lossy().into_owned())
 }
 
+/// Pauses "React to what I'm doing" for `minutes` (0 resumes).
+#[tauri::command]
+pub fn pause_activity(app: AppHandle, minutes: i64) {
+    if minutes > 0 {
+        crate::activity::pause_for(minutes.min(24 * 60));
+    } else {
+        crate::activity::resume();
+    }
+    tray::refresh(&app);
+}
+
+#[tauri::command]
+pub fn activity_paused() -> bool {
+    crate::activity::paused()
+}
+
 #[tauri::command]
 pub fn quit_app(app: AppHandle) {
     app.exit(0);

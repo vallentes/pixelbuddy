@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub const ACTIONS: &[&str] = &[
     "none", "happy", "dance", "feed", "play", "angry", "sleep", "celebrate", "wave", "joke", "sing", "trick", "tickle",
     "sneeze", "scared", "backflip", "moonwalk", "juggle", "magic", "karate", "flex", "shades", "meditate", "airguitar",
-    "cartwheel", "selfie", "yoyo",
+    "cartwheel", "selfie", "yoyo", "evolve", "confetti",
 ];
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -46,6 +46,18 @@ pub struct Settings {
     pub user_name: String,
     /// Harmless mischief: fake cursor theft, tantrums when ignored, jealousy. Off by default.
     pub naughty_mode: bool,
+    /// Opt-in: react to the kind of app in front (see activity.rs for what is and isn't read).
+    pub activity_awareness: bool,
+    /// Pets may mention the Spotify song that is playing.
+    pub activity_song_names: bool,
+    /// App keys (e.g. "discord") pets never react to.
+    pub activity_ignore: Vec<String>,
+    /// Quiet pets during video calls.
+    pub meeting_mode: bool,
+    /// Pets can jump onto and ride the active window (Windows).
+    pub perch_windows: bool,
+    pub break_reminders: bool,
+    pub water_reminders: bool,
 }
 
 impl Default for Settings {
@@ -86,6 +98,13 @@ impl Default for Settings {
             sound_effects: true,
             user_name: String::new(),
             naughty_mode: false,
+            activity_awareness: false,
+            activity_song_names: true,
+            activity_ignore: Vec::new(),
+            meeting_mode: true,
+            perch_windows: false,
+            break_reminders: false,
+            water_reminders: false,
         }
     }
 }
@@ -137,6 +156,16 @@ impl Settings {
         }
         self.voice_volume = self.voice_volume.clamp(0.0, 1.0);
         self.user_name = self.user_name.chars().filter(|c| !c.is_control()).take(24).collect::<String>().trim().to_string();
+        let mut ignore: Vec<String> = self
+            .activity_ignore
+            .iter()
+            .map(|a| crate::activity::app_key(a).chars().filter(|c| !c.is_control()).take(64).collect::<String>())
+            .filter(|a| !a.is_empty())
+            .collect();
+        ignore.sort();
+        ignore.dedup();
+        ignore.truncate(50);
+        self.activity_ignore = ignore;
         self
     }
 

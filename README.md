@@ -16,7 +16,7 @@
 | --- | --- |
 | [`PixelBuddy_x.y.z_x64-setup.exe`](https://github.com/vallentes/pixelbuddy/releases/latest) | [`PixelBuddy_x.y.z_universal.dmg`](https://github.com/vallentes/pixelbuddy/releases/latest) |
 
-Free, no ads, no accounts, no tracking. It updates itself when a new version is out.
+Free, no ads, no accounts, no tracking ([privacy policy](PRIVACY.md)). It updates itself when a new version is out.
 
 ## Meet all 15 pets
 
@@ -35,6 +35,10 @@ A cat, frog, dragon, robot, cloud-sheep, penguin, bunny, puppy, owl, hamster, al
 * **Record a clip.** Right-click a pet, *Record a clip*, portrait or landscape. It films a short show and saves the video to your Videos folder. Only the pet is filmed, never your screen.
 * **Buddy codes.** Share a pet as a short code. A friend pastes it and your pet visits their desktop.
 * **Naughty mode** (optional). They steal a pretend cursor, throw tantrums when ignored and get jealous. Your real mouse is never touched.
+* **They notice what you're doing** (optional, off by default). They sit and watch videos with you, dance to Spotify and name the song, go silent in Zoom/Teams/Meet calls, offer to bite your emails, cheer when you type fast and tell you to go to bed at 2 a.m. Only the app name and window title are checked, on your computer, and then forgotten. See [PRIVACY.md](PRIVACY.md).
+* **Climb on windows** (Windows, optional). Pets jump onto the window you're using and ride along when you drag it.
+* **Focus timer.** Right-click a pet or use the tray: pets go quiet for 25 or 50 minutes and cheer when you're done.
+* **Break and water reminders** (optional). A pet stretches after an hour at the computer and reminds you to drink water.
 * **Polite.** Hides during fullscreen games and videos, naps when you're away, has a low-power mode.
 
 ## For streamers
@@ -73,6 +77,7 @@ Uninstall by dragging PixelBuddy from Applications to the Trash.
 - [x] 15 pets, talking, tricks, pet-to-pet play
 - [x] Automatic updates
 - [x] Record clips, buddy codes, naughty mode, Twitch evolve
+- [x] Desktop awareness, focus timer, climbing on windows
 - [ ] Signed Windows installer and notarized Mac app (no more security prompts)
 - [ ] Create your own buddy
 - [ ] More pets and seasonal outfits

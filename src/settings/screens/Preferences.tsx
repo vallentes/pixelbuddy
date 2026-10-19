@@ -4,6 +4,7 @@ import { useStore } from '../store';
 import { api } from '../../shared/api';
 import { Bar, Card, PetPreview, Row, Slider, Toggle } from '../ui';
 import { loadVoices, voiceStatus, type VoiceStatus } from '../voiceService';
+import { AwarenessCards } from './Awareness';
 
 function NaturalVoiceStatus() {
   const [vs, setVs] = useState<VoiceStatus>(voiceStatus());
@@ -195,6 +196,7 @@ export function PersonalityScreen() {
           <Toggle label="Naughty mode" on={s.naughtyMode} onChange={(v) => updateSettings({ naughtyMode: v })} />
         </Row>
       </Card>
+      <AwarenessCards />
       <Card title="Voice and sounds">
         <Row
           label="Voice"
