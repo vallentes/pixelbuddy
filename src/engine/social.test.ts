@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Brain } from './brain';
-import { buildScript, chooseKind, isFree, pickConversation, type Kind, type Presence } from './social';
+import { KINDS, boredomBonus, buildScript, bystanderLine, chooseKind, isFree, pickConversation, type Presence } from './social';
 
 const p = (id: number, name: string, species: string, x: number): Presence => ({
   id,
@@ -14,7 +14,6 @@ const p = (id: number, name: string, species: string, x: number): Presence => ({
   at: 0,
 });
 
-const KINDS: Kind[] = ['chat', 'tag', 'highfive', 'prank', 'danceoff', 'duet', 'snack', 'nap', 'jokeoff', 'copycat', 'magicshow'];
 
 describe('social scripts', () => {
   it('are identical in both windows for the same seed', () => {
@@ -51,9 +50,36 @@ describe('social scripts', () => {
   });
 
   it('picks every kind of interaction eventually', () => {
-    const seen = new Set<Kind>();
+    const seen = new Set<string>();
     for (let i = 0; i < 1000; i++) seen.add(chooseKind(() => i / 1000, true));
     expect(seen.size).toBe(KINDS.length);
+  });
+
+  it('fills in every line for every kind and seed', () => {
+    const a = p(1, 'Mochi', 'mochi', 100);
+    const b = p(2, 'Bolt', 'bolt', 700);
+    for (const k of KINDS) {
+      for (let seed = 0; seed < 40; seed++) {
+        const s = buildScript(k, a, b, seed * 977);
+        for (const st of s.steps) if (st.do === 'say') expect(st.text, k).not.toMatch(/[{}]|undefined/);
+      }
+    }
+  });
+
+  it('gets more playful the longer pets are ignored', () => {
+    expect(boredomBonus(30_000)).toBe(0);
+    expect(boredomBonus(6 * 60_000)).toBeGreaterThan(0.1);
+    expect(boredomBonus(60 * 60_000)).toBe(0.4);
+    const count = (wild: boolean) => {
+      let n = 0;
+      for (let i = 0; i < 1000; i++) if (['tag', 'prank', 'toot', 'argue', 'hideseek'].includes(chooseKind(() => i / 1000, false, wild))) n++;
+      return n;
+    };
+    expect(count(true)).toBeGreaterThan(count(false));
+  });
+
+  it('bystanders shout something for every kind', () => {
+    for (const k of KINDS) expect(bystanderLine(k, 'Mochi', 'Bolt', () => 0.5)).not.toMatch(/[{}]/);
   });
 
   it('only interrupts pets that are free', () => {

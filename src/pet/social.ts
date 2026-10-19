@@ -3,7 +3,7 @@
 
 import { emit, listen } from '@tauri-apps/api/event';
 import type { Action, Brain } from '../engine/brain';
-import { SOCIAL_CHANCE, buildScript, chooseKind, isFree, type Kind, type Presence, type Role, type Script } from '../engine/social';
+import { SOCIAL_CHANCE, boredomBonus, buildScript, bystanderLine, chooseKind, isFree, type Kind, type Presence, type Role, type Script } from '../engine/social';
 
 interface Host {
   id: number;
@@ -18,12 +18,16 @@ interface Host {
   chattiness(): string;
   canSocialize(): boolean;
   sfx(kind: 'thud'): void;
+  /** How long since the user last touched any pet (ms). */
+  ignoredMs(): number;
 }
 
 type Msg =
   | { type: 'start'; from: number; to: number; kind: Kind; seed: number; a: Presence; b: Presence }
   | { type: 'accept'; from: number; to: number; kind: Kind; seed: number; a: Presence; b: Presence }
-  | { type: 'abort'; from: number; to: number };
+  | { type: 'abort'; from: number; to: number }
+  /** Sent to everyone when an interaction starts, so others can cheer or heckle. */
+  | { type: 'show'; from: number; to: -1; kind: Kind; a: number; b: number; aName: string; bName: string };
 
 export class Social {
   others = new Map<number, Presence>();
@@ -32,6 +36,8 @@ export class Social {
   private pendingInvite: number | null = null;
   private lastBonk = 0;
   private lastInteraction = Date.now();
+  private lastEnd = 0;
+  private lastHeckle = 0;
 
   constructor(private h: Host) {}
 
@@ -41,7 +47,7 @@ export class Social {
     });
     await listen<Msg>('pet://social', (e) => this.onMsg(e.payload));
     window.setInterval(() => this.broadcast(), 300);
-    window.setInterval(() => this.maybeStart(), 5000);
+    window.setInterval(() => this.maybeStart(), 4000);
   }
 
   get busy() {
@@ -60,16 +66,17 @@ export class Social {
   }
 
   private maybeStart() {
-    if (this.script || !this.h.canSocialize()) return;
+    if (this.script || !this.h.canSocialize() || Date.now() - this.lastEnd < 5000) return;
     const me = this.h.self();
     if (!isFree(me.state)) return;
     const candidates = this.neighbors().filter((p) => p.id > this.h.id && !p.busy && isFree(p.state));
     if (!candidates.length) return;
     // A little extra chance after a long quiet spell so friends do not ignore each other.
     const quiet = Math.min(0.1, (Date.now() - this.lastInteraction) / 3_000_000);
-    if (Math.random() > (SOCIAL_CHANCE[this.h.chattiness()] ?? 0.08) + quiet) return;
+    const ignored = this.h.ignoredMs();
+    if (Math.random() > (SOCIAL_CHANCE[this.h.chattiness()] ?? 0.08) + quiet + boredomBonus(ignored)) return;
     const partner = candidates[Math.floor(Math.random() * candidates.length)];
-    const kind = chooseKind(Math.random, this.h.chattiness() === 'chatty' || this.h.chattiness() === 'normal');
+    const kind = chooseKind(Math.random, this.h.chattiness() === 'chatty' || this.h.chattiness() === 'normal', ignored > 3 * 60_000);
     const seed = Math.floor(Math.random() * 2 ** 31);
     this.pendingInvite = partner.id;
     void emit('pet://social', { type: 'start', from: this.h.id, to: partner.id, kind, seed, a: me, b: partner } satisfies Msg);
@@ -91,6 +98,7 @@ export class Social {
   }
 
   private onMsg(m: Msg) {
+    if (m.type === 'show') return this.maybeHeckle(m);
     if (m.to !== this.h.id) return;
     if (m.type === 'start') {
       if (this.script || !this.h.canSocialize() || !isFree(this.h.self().state)) return;
@@ -100,9 +108,27 @@ export class Social {
       if (this.pendingInvite !== m.from || this.script) return;
       this.pendingInvite = null;
       this.run(buildScript(m.kind, m.a, m.b, m.seed), 'a', m.from);
+      void emit('pet://social', { type: 'show', from: this.h.id, to: -1, kind: m.kind, a: m.a.id, b: m.b.id, aName: m.a.name, bName: m.b.name } satisfies Msg);
     } else if (m.type === 'abort') {
       if (this.script?.partner === m.from) this.stop(false);
     }
+  }
+
+  /** A free pet nearby watches someone else's interaction and shouts something. */
+  private maybeHeckle(m: Extract<Msg, { type: 'show' }>) {
+    const now = Date.now();
+    if (m.a === this.h.id || m.b === this.h.id || this.script || now - this.lastHeckle < 25_000) return;
+    if (!this.h.canSocialize() || !isFree(this.h.self().state) || Math.random() > 0.55) return;
+    const star = this.others.get(m.a);
+    if (!star || star.monitor !== this.h.self().monitor) return;
+    this.lastHeckle = now;
+    window.setTimeout(() => {
+      if (this.script || !isFree(this.h.self().state)) return;
+      const px = this.others.get(m.a)?.x;
+      if (px !== undefined) this.h.brain.face(px - this.h.self().x);
+      this.h.say(bystanderLine(m.kind, m.aName, m.bName, Math.random));
+      this.h.act(Math.random() < 0.5 ? 'happy' : 'tickle');
+    }, 3500 + Math.random() * 4000);
   }
 
   private partnerX(partner: number): number | null {
@@ -136,6 +162,15 @@ export class Social {
             case 'act':
               this.h.act(st.action);
               break;
+            case 'away': {
+              const bd = this.h.bounds();
+              const dir = px === null ? (Math.random() < 0.5 ? -1 : 1) : -(Math.sign(px - me.x) || 1);
+              let target = me.x + dir * st.dist * this.h.sf();
+              // Not enough room on that side: go the other way instead.
+              if (target < bd.minX || target > bd.maxX) target = me.x - dir * st.dist * this.h.sf();
+              b.goTo(Math.min(bd.maxX, Math.max(bd.minX, target)), Date.now(), st.speed ?? 1.3);
+              break;
+            }
             case 'chase':
             case 'flee':
               this.chase = { mode: st.do, partner, until: Date.now() + st.ms };
@@ -153,6 +188,7 @@ export class Social {
     this.script.timers.forEach((t) => window.clearTimeout(t));
     if (notify) void emit('pet://social', { type: 'abort', from: this.h.id, to: this.script.partner } satisfies Msg);
     this.script = null;
+    this.lastEnd = Date.now();
     this.chase = null;
     this.h.brain.lockUntil = 0;
     this.h.brain.speedMul = 1;

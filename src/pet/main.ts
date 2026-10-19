@@ -978,7 +978,9 @@ async function boot() {
     chatTopic: (t) => chat(t),
     act: (a) => brain.act(a, Date.now()),
     chattiness: () => settings.chattiness,
-    canSocialize: () => !hidden && !system.idle && mode === 'ground' && !settings.animationsPaused,
+    // They keep playing while you are away from the keyboard, too.
+    canSocialize: () => !hidden && mode === 'ground' && !settings.animationsPaused && !clip,
+    ignoredMs: () => Date.now() - lastAttention,
     sfx: (k) => voice.sfx(k),
   });
   await applySize();
