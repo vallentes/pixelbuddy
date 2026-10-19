@@ -8,6 +8,7 @@ import type {
   Reward,
   Settings,
   TwitchStatus,
+  UpdateInfo,
 } from './types';
 
 export const api = {
@@ -26,6 +27,8 @@ export const api = {
   cursorPosition: () => invoke<[number, number]>('cursor_position'),
   mouseButtonDown: () => invoke<boolean>('mouse_button_down'),
 
+  checkForUpdate: () => invoke<UpdateInfo | null>('check_for_update'),
+  installUpdate: () => invoke<void>('install_update'),
   openSupportLink: (kind: 'coffee' | 'revolut' = 'coffee') => invoke<void>('open_support_link', { kind }),
 
   overlayStatus: () => invoke<OverlayStatus>('overlay_status'),

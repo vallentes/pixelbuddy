@@ -182,6 +182,11 @@ export const EXTRA_SHARED: Record<string, string[]> = {
   cartwheel: ['*Wheee!* Cartwheel!', 'Gymnastics *gold* medal!', 'I am *very* bendy.'],
   tiptoe: ['*Shhh*. I am sneaking.', 'You did not see me. *Nobody* saw me.', 'Ninja *mode*.'],
   yoyo: ['Walk the *dog*!', 'Up... down... *up*!', 'I am a yo-yo *professional*.'],
+  update: [
+    'Psst! A *new version* of me is out! Check the tray.',
+    'I got an *upgrade*! Well, I will once you click update.',
+    'New tricks are waiting! *Update* me from the tray!',
+  ],
   selfie: ['Say *cheese*!', 'Selfie *time*! Smile, {user}!', 'Getting my *good side*.', 'This one is going on my *desktop*.'],
   sing: ['Laaa la la, *snack* time!', 'This song is about *you*!', 'Do re mi fa *SO* cute!'],
 };

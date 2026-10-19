@@ -8,6 +8,7 @@ pub mod settings;
 pub mod system;
 pub mod tray;
 pub mod twitch;
+pub mod updater;
 pub mod voice_model;
 pub mod windows;
 
@@ -34,6 +35,7 @@ pub struct AppState {
     pub overlay: overlay::Overlay,
     pub twitch: twitch::Twitch,
     pub tray: Mutex<Option<tray::TrayHandles>>,
+    pub update: Mutex<Option<updater::UpdateInfo>>,
     notified: Mutex<HashSet<(i64, &'static str)>>,
 }
 
@@ -56,6 +58,7 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         overlay: overlay::Overlay::default(),
         twitch: twitch::Twitch::default(),
         tray: Mutex::new(None),
+        update: Mutex::new(None),
         notified: Mutex::new(HashSet::new()),
     });
     app.manage(st.clone());
@@ -79,6 +82,7 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 
     spawn_system_monitor(app.clone());
     spawn_needs_tick(app.clone());
+    updater::spawn_checks(app.clone());
     Ok(())
 }
 
@@ -164,6 +168,8 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--autostart"])))
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .register_uri_scheme_protocol("pbmodel", voice_model::protocol)
         .setup(|app| {
             setup(app.handle())?;
@@ -190,6 +196,8 @@ pub fn run() {
             commands::cursor_position,
             commands::mouse_button_down,
             commands::open_support_link,
+            updater::check_for_update,
+            updater::install_update,
             commands::overlay_status,
             commands::send_test_reaction,
             commands::twitch_status,

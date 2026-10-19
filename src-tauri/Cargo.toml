@@ -1,6 +1,6 @@
 [package]
 name = "pixelbuddy"
-version = "1.1.0"
+version = "1.2.0"
 description = "PixelBuddy desktop pets"
 edition = "2021"
 publish = false
@@ -20,6 +20,8 @@ tauri-plugin-autostart = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-log = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 axum = { workspace = true }
 futures-util = "0.3"
 keyring = { version = "3", features = ["apple-native", "windows-native"] }

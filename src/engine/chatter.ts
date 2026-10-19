@@ -65,7 +65,8 @@ export type Topic =
   | 'cartwheel'
   | 'tiptoe'
   | 'yoyo'
-  | 'selfie';
+  | 'selfie'
+  | 'update';
 
 export type Chattiness = 'off' | 'rare' | 'normal' | 'chatty';
 

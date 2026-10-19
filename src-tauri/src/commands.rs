@@ -121,6 +121,7 @@ pub struct Bootstrap {
     overlay: OverlayStatus,
     twitch: TwitchStatus,
     max_pets: usize,
+    update: Option<crate::updater::UpdateInfo>,
 }
 
 #[tauri::command]
@@ -135,6 +136,7 @@ pub fn get_bootstrap(app: AppHandle) -> CmdResult<Bootstrap> {
         overlay: st.overlay.status(settings.overlay_enabled, settings.overlay_port),
         twitch: st.twitch.status(),
         max_pets: pets::MAX_PETS,
+        update: st.update.lock().unwrap().clone(),
         settings,
     };
     Ok(out)

@@ -98,6 +98,12 @@ export interface Reward {
   petId: number | null;
 }
 
+export interface UpdateInfo {
+  version: string;
+  current: string;
+  notes: string | null;
+}
+
 export interface Bootstrap {
   version: string;
   platform: 'windows' | 'macos' | 'linux';
@@ -107,6 +113,7 @@ export interface Bootstrap {
   overlay: OverlayStatus;
   twitch: TwitchStatus;
   maxPets: number;
+  update: UpdateInfo | null;
 }
 
 export interface Reaction {

@@ -49,6 +49,9 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Signs the in-app update files (latest.json points at them).
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
         shell: bash
         run: |
           # Empty secrets would make the bundler try (and fail) to import a certificate.
@@ -71,6 +74,26 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           shopt -s nullglob
-          files=(target/release/bundle/nsis/*.exe target/release/bundle/msi/*.msi target/universal-apple-darwin/release/bundle/dmg/*.dmg)
+          files=(target/release/bundle/nsis/*.exe target/release/bundle/nsis/*.exe.sig target/release/bundle/msi/*.msi
+                 target/universal-apple-darwin/release/bundle/dmg/*.dmg
+                 target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz.sig)
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "PixelBuddy ${GITHUB_REF_NAME#v}" --notes "See README for install steps."
           gh release upload "$GITHUB_REF_NAME" "${files[@]}" --clobber
+
+  # After both platforms are built, publish latest.json for the in-app updater.
+  updater-manifest:
+    needs: build
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write and attach latest.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p sigs
+          gh release download "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -p '*.sig' -D sigs
+          node scripts/updater-manifest.mjs "$GITHUB_REF_NAME" sigs "$GITHUB_REPOSITORY"
+          gh release upload "$GITHUB_REF_NAME" latest.json -R "$GITHUB_REPOSITORY" --clobber

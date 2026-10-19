@@ -766,6 +766,9 @@ async function listenAll() {
     applyVisibility();
     draw();
   });
+  await listen('update://available', () => {
+    window.setTimeout(() => chat('update', id % 2 === 1 ? 1 : 0), 4000);
+  });
   await listen<SystemState>('system://state', (e) => {
     const wasIdle = system.idle;
     system = e.payload;

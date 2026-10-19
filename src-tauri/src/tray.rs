@@ -1,11 +1,12 @@
 use crate::{commands, state, windows};
 use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
-use tauri::{AppHandle, Wry};
+use tauri::{AppHandle, Emitter, Wry};
 
 pub struct TrayHandles {
     show: CheckMenuItem<Wry>,
     pause: CheckMenuItem<Wry>,
+    update: MenuItem<Wry>,
 }
 
 pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
@@ -19,6 +20,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
     let play = MenuItem::with_id(app, "play_all", "Play with everyone", true, None::<&str>)?;
     let settings_item = MenuItem::with_id(app, "settings", "Settings...", true, None::<&str>)?;
     let streaming = MenuItem::with_id(app, "streaming", "Streaming and overlay...", true, None::<&str>)?;
+    let update = MenuItem::with_id(app, "update", "Check for updates", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit PixelBuddy", true, None::<&str>)?;
     let menu = Menu::with_items(
         app,
@@ -33,6 +35,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
             &support,
             &revolut,
             &PredefinedMenuItem::separator(app)?,
+            &update,
             &quit,
         ],
     )?;
@@ -61,6 +64,20 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
             "revolut" => {
                 let _ = commands::open_support_link(app.clone(), Some("revolut".into()));
             }
+            "update" => {
+                let has = state(app).update.lock().unwrap().is_some();
+                if has {
+                    let app = app.clone();
+                    tauri::async_runtime::spawn(async move {
+                        if let Err(e) = crate::updater::install_update(app.clone()).await {
+                            log::warn!("{e}");
+                        }
+                    });
+                } else {
+                    windows::show_settings(app, Some("about"));
+                    let _ = app.emit("update://check-requested", ());
+                }
+            }
             "quit" => app.exit(0),
             _ => {}
         })
@@ -71,7 +88,7 @@ pub fn build(app: &AppHandle) -> tauri::Result<TrayHandles> {
         })
         .build(app)?;
 
-    Ok(TrayHandles { show, pause })
+    Ok(TrayHandles { show, pause, update })
 }
 
 pub fn refresh(app: &AppHandle) {
@@ -81,4 +98,9 @@ pub fn refresh(app: &AppHandle) {
     let s = st.settings.read().unwrap();
     let _ = t.show.set_checked(!s.pets_hidden);
     let _ = t.pause.set_checked(s.animations_paused);
+    let label = match st.update.lock().unwrap().as_ref() {
+        Some(u) => format!("Update to {}", u.version),
+        None => "Check for updates".to_string(),
+    };
+    let _ = t.update.set_text(label);
 }

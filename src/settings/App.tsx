@@ -7,6 +7,7 @@ import { AppearanceScreen, BehaviorScreen, PerformanceScreen, PersonalityScreen 
 import { StreamingScreen } from './screens/Streaming';
 import { useStore, type Section } from './store';
 import { PetPreview, Wordmark } from './ui';
+import { UpdateBanner } from './Update';
 
 const NAV: { id: Section; label: string; color: string }[] = [
   { id: 'pets', label: 'Pets', color: '#ff9f43' },
@@ -42,6 +43,7 @@ export function App() {
         <button className="btn small" onClick={() => api.openSupportLink()} title="buymeacoffee.com/vallentes">☕ Buy me a coffee</button>
       </nav>
       <main className="main">
+        <UpdateBanner />
         {section === 'pets' && <PetsScreen />}
         {section === 'personality' && <PersonalityScreen />}
         {section === 'appearance' && <AppearanceScreen />}
